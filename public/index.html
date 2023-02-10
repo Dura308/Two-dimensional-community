@@ -1,17 +1,47 @@
 <!DOCTYPE html>
-<html lang="">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
+<html lang = "">
+	<head>
+		<meta charset = "utf-8">
+		<meta http-equiv = "X-UA-Compatible" content = "IE=edge">
+		<meta name = "viewport" content = "width=device-width,initial-scale=1.0">
+		<link rel = "icon" href = "http://47.109.51.114:8089/avatar/default-avatar.png">
+		<title>tofu社区</title>
+		<style>
+			html {
+				line-height: 1.15;
+				-webkit-text-size-adjust: 100%
+			}
+
+			body {
+				margin: 0;
+				padding: 0;
+			}
+
+			main {
+				display: block
+			}
+
+			/*自定义滚动条样式*/
+			::-webkit-scrollbar {
+				width: 6px;
+			}
+
+			::-webkit-scrollbar-thumb {
+				border-radius: 10px;
+				transition: all .2s ease-in-out;
+				background-color: #0003;;
+			}
+
+			::-webkit-scrollbar-track {
+				border-radius: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<noscript>
+			<strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+		</noscript>
+		<div id = "app"></div>
+		<!-- built files will be auto injected -->
+	</body>
 </html>
