@@ -22,6 +22,14 @@ public class ResponseData {
         return ResponseData.fail(ResultsEnum.FAIL,data);
     }
 
+    public static <T> Result<T> authError() {
+        return ResponseData.fail(ResultsEnum.AUTH_ERROR);
+    }
+
+    public static <T> Result<T> authError(T data) {
+        return ResponseData.fail(ResultsEnum.AUTH_ERROR,data);
+    }
+
     public static <T> Result<T> success(ResultsEnum resultEnum) {
         return new Result<>(resultEnum);
     }
@@ -35,6 +43,14 @@ public class ResponseData {
     }
 
     public static <T> Result<T> fail(ResultsEnum resultEnum,T data) {
+        return new Result<>(resultEnum,data);
+    }
+
+    public static <T> Result<T> authError(ResultsEnum resultEnum) {
+        return new Result<>(resultEnum);
+    }
+
+    public static <T> Result<T> authError(ResultsEnum resultEnum,T data) {
         return new Result<>(resultEnum,data);
     }
 }

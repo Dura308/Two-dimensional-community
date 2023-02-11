@@ -3,11 +3,9 @@ package com.zlee.controller;
 import com.zlee.Result.ResponseData;
 import com.zlee.Result.Result;
 import com.zlee.service.impl.TofuContentServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -44,8 +42,6 @@ public class ContentController {
     @GetMapping("/getContent")
     public Result<Object> getContent() {
 
-        List<HashMap<String, Object>> list = contentService.getContent();
-
-        return ResponseData.success(list);
+        return ResponseData.success(contentService.getContent());
     }
 }

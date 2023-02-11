@@ -1,12 +1,9 @@
 package com.zlee.advice;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.zlee.Result.ResponseData;
 import com.zlee.Result.Result;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
@@ -25,7 +22,7 @@ public class ExceptionControllerAdvice {
 
     @ExceptionHandler(JWTVerificationException.class)
     public Result<Object> tokenExpiredException(JWTVerificationException e) {
-        return ResponseData.fail(e.getMessage());
+        return ResponseData.authError(e.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)

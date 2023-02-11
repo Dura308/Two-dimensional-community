@@ -21,7 +21,7 @@ public class ContentVideo implements Serializable {
     /**
      * 视频地址
      */
-    private String video;
+    private String url;
 
     @Serial
     private static final long serialVersionUID = 1L;

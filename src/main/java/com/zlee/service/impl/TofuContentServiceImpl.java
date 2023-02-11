@@ -9,6 +9,8 @@ import com.zlee.entity.TofuContent;
 import com.zlee.mapper.*;
 import com.zlee.service.TofuContentService;
 import com.zlee.utils.FtpUtil;
+import com.zlee.utils.RedisUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,26 +31,29 @@ public class TofuContentServiceImpl extends ServiceImpl<TofuContentMapper, TofuC
     private static final String TEXT = "text";
     private static final String QUESTION = "question";
     private static final String VIDEO = "video";
+    private static final String TOFU_CONTENT = "tofu:content";
 
     private final TofuContentMapper contentMapper;
     private final ContentPictureMapper pictureMapper;
     private final ContentQuestionMapper questionMapper;
     private final ContentVideoMapper videoMapper;
 
+    private final RedisUtil redisUtil;
+
     public TofuContentServiceImpl(TofuContentMapper contentMapper,
                                   ContentPictureMapper pictureMapper,
                                   ContentQuestionMapper questionMapper,
-                                  ContentVideoMapper videoMapper) {
+                                  ContentVideoMapper videoMapper, RedisUtil redisUtil) {
         this.contentMapper = contentMapper;
         this.pictureMapper = pictureMapper;
         this.questionMapper = questionMapper;
         this.videoMapper = videoMapper;
+        this.redisUtil = redisUtil;
     }
 
     public Result<Object> newContent(List<MultipartFile> files, HashMap<String, Object> contentMap) {
+
         TofuContent content = new TofuContent();
-
-
         String userId = String.valueOf(contentMap.get("userId"));
         String nickName = String.valueOf(contentMap.get("nickName"));
         String text = String.valueOf(contentMap.get("text"));
@@ -89,7 +94,13 @@ public class TofuContentServiceImpl extends ServiceImpl<TofuContentMapper, TofuC
         return null;
     }
 
-    public List<HashMap<String, Object>> getContent() {
+    public Object getContent() {
+
+        //先查redis
+        //if (redisUtil.hasKey(TOFU_CONTENT)) {
+        //    redisUtil.expire(TOFU_CONTENT, 3600L);
+        //    return redisUtil.get(TOFU_CONTENT);
+        //}
 
         ArrayList<HashMap<String, Object>> contentMapList = new ArrayList<>();
 
@@ -120,6 +131,11 @@ public class TofuContentServiceImpl extends ServiceImpl<TofuContentMapper, TofuC
             }
         }
 
+        //放入redis缓存
+        //redisUtil.set(TOFU_CONTENT, contentMapList, 3600L);
+
         return contentMapList;
     }
+
+
 }
