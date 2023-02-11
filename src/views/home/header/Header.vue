@@ -312,6 +312,7 @@
         localStorage.setItem('token', token)
         changeLoginDialogVisible()
         loginLoading.value = false
+        location.reload()
         ElNotification({
           title: '登录成功',
           message: '欢迎回来,' + store.state.loginUser.nickName,

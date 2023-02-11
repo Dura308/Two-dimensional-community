@@ -3,16 +3,21 @@
     <div class="user-info">
       <el-link type="primary" :underline="false">
         <el-avatar
-          :src="props.avatar"
+          :src="contentUserAvatar"
           :size="30"/>
       </el-link>
 
       <div class="nick-name">
-        <p><el-link>{{ contentList.nickName }}</el-link></p>
+        <p><el-link>{{ contentInfo.nickName }}</el-link></p>
       </div>
     </div>
-    <div class="user-content" :style="{height: props.height}">
-
+    <div class="user-content">
+      <span style="font-size: 14px">{{contentInfo.text}}</span>
+      <div class="content">
+        <template v-for="(item, index) in content">
+          <el-image :src="item.url"></el-image>
+        </template>
+      </div>
     </div>
     <div class="el-card-bottom">
       <div class="bottom-item">
@@ -87,19 +92,19 @@
             </div>
           </template>
         </el-popover>
-        <span>{{ contentList.shareNum }}</span>
+        <span>{{ contentInfo.shareNum }}</span>
       </div>
       <div class="bottom-item">
         <el-link :underline="false" @click="expandComments">
           <el-icon size="20" class="no-inherit">
             <ChatLineRound />
           </el-icon>
-          <span>{{commentsVisible ? '收起评论' : contentList.messageNum }}</span>
+          <span>{{commentsVisible ? '收起评论' : contentInfo.commentNum }}</span>
         </el-link>
       </div>
       <div class="bottom-item" @click="userOperation('like')">
         <vue-star />
-        <span>{{ contentList.likeNum }}</span>
+        <span>{{ contentInfo.likeNum }}</span>
       </div>
     </div>
 
@@ -176,12 +181,8 @@
   import mitt from "mitt";
 
   interface List{
-    contentId?: number,
-    id?: number
-    nickName?: string
-    share?: number
-    message?: number
-    like?: number
+    contentInfo?: {},
+    content?: {}
   }
 
   const store = useStore()
@@ -192,26 +193,21 @@
   const emitter = mitt()
 
   const props = defineProps({
-    avatar: {
-      type: String,
-      default: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
-    },
-    height: {
-      type: String,
-      default: String(Math.random() * (600 - 100) + 100) + 'px'
-    },
     list: {
       type: Array as PropType<List>
     }
   })
 
-  const contentList = reactive({
-    contentId: props.list.contentId,
-    id: props.list.id,
-    nickName: props.list.nickName,
-    shareNum: props.list.share,
-    messageNum: props.list.message,
-    likeNum: props.list.like
+  const contentUserAvatar = computed(() => {
+    return 'http://47.109.51.114:8089/avatar/' + props.list.contentInfo.userId + '.png'
+  })
+
+  const contentInfo = computed(() => {
+    return props.list.contentInfo
+  })
+
+  const content = computed(() => {
+    return props.list.content
   })
 
   const userOperation = (mode) => {
@@ -247,18 +243,17 @@
   const like = () => {
     isLike.value = !isLike.value
     if(isLike.value){
-      contentList.likeNum++
+      contentInfo.value.likeNum++
     }else {
-      contentList.likeNum--
+      contentInfo.value.likeNum--
     }
   }
 
   const commentsVisible = ref(false)
   const expandComments = () => {
-    console.log(contentList.contentId)
     commentsVisible.value = !commentsVisible.value
     if(commentsVisible.value){
-      getComments(contentList.contentId)
+      getComments(contentInfo.value.contentId)
       return
     }
     replyFormVisible.value = false
@@ -301,7 +296,7 @@
       nickName: loginUser.value.nickName,
       avatar: loginUser.value.avatar,
       parentNickName: rootReply ? null : replyTo.value.nickName,
-      contentId: contentList.contentId,
+      contentId: contentInfo.value.contentId,
       comment: rootReply ? rootReplyMsg.value : replyMsg.value,
       parentId: rootReply ? null : replyTo.value.commentId,
       rootParentId: rootReply ? null : (replyTo.value.rootParentId === null ? replyTo.value.commentId : replyTo.value.rootParentId),
@@ -309,7 +304,8 @@
       child: null
     }).then(function (response) {
       if(response.data.code === 200){
-        getComments(contentList.contentId)
+        contentInfo.value.commentNum++
+        getComments(contentInfo.value.contentId)
         replyFormVisible.value = false
         replyMsg.value = ''
         rootReplyMsg.value = ''
@@ -333,8 +329,13 @@
   }
 
   .user-content{
-    background-color: #D3DCE6;
     margin-bottom: 20px;
+  }
+
+  .content{
+    /*height: 200px;*/
+    /*background-color: #D3DCE6;*/
+    margin-top: 5px;
   }
 
   .nick-name{

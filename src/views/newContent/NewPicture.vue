@@ -33,6 +33,7 @@
   import axios from "axios";
   import url from "@/index";
   import {useRoute} from "vue-router";
+  import {compressionFile} from "@/utils/compressImage";
 
   const store = useStore()
   const route = useRoute()
@@ -41,12 +42,11 @@
   const text = ref()
   const upload = ref<any>()
 
-  const onSubmit = () => {
-
+  const onSubmit = async () => {
     let formData = new FormData()
-    upload.value.fileList.forEach(file => {
-      formData.append('pictureFile',file.raw)
-    })
+    for (const file of upload.value.fileList) {
+      formData.append('pictureFile',await compressionFile(file.raw, 'image/jpeg', 0.5))
+    }
     formData.append('userId', String(route.query.userId))
     formData.append('nickName', String(route.query.nickName))
     formData.append('contentType', 'picture')
@@ -57,6 +57,8 @@
       }
     }).then(function (response) {
       console.log(response)
+    }).catch(function (error) {
+      console.log(error)
     })
   }
 </script>

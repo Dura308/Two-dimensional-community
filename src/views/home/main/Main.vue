@@ -12,7 +12,7 @@
           <el-col :span="8">
             <div id="square-1">
               <template v-for="index in list.length">
-                <SquareCard v-if="(index - 1) % 3 === 0" :height = "randomHeight()" :list = "list[index - 1]"/>
+                <SquareCard v-if="(index - 1) % 3 === 0" :list = "list[index - 1]"/>
               </template>
             </div>
           </el-col>
@@ -20,7 +20,7 @@
           <el-col :span="8">
             <div id="square-2">
               <template v-for="index in list.length" >
-                <SquareCard v-if="(index - 1) % 3 === 1" :height = "randomHeight()" :list = "list[index - 1]"/>
+                <SquareCard v-if="(index - 1) % 3 === 1" :list = "list[index - 1]"/>
               </template>
             </div>
           </el-col>
@@ -28,7 +28,7 @@
           <el-col :span="8">
             <div id="square-3">
               <template v-for="index in list.length">
-                <SquareCard v-if="(index - 1) % 3 === 2" :height = "randomHeight()" :list = "list[index - 1]"/>
+                <SquareCard v-if="(index - 1) % 3 === 2" :list = "list[index - 1]"/>
               </template>
             </div>
           </el-col>
@@ -44,42 +44,65 @@
   import {UserFilled} from "@element-plus/icons-vue"
   import SquareCard from "@/views/home/main/SquareCard"
   import {computed, onMounted, reactive, ref} from "vue";
-  const contentInfo = reactive({
-    avatar: '',
-    nickName: 'nick-name',
-  })
-
-  const randomHeight = () => {
-    return String(Math.random() * (600 - 100) + 100) + 'px'
-  }
+  import axios from "axios";
+  import url from "../../../index";
+  // const contentInfo = reactive({
+  //   contentId: '',
+  //   userId: '',
+  //   nickName: '',
+  //   text: '',
+  //   contentType: '',
+  //   collectionNum: '',
+  //   likeNum: '',
+  //   commentNum: '',
+  //   shareNum: '',
+  //   createdTime: '',
+  //
+  // })
 
   const list = ref([])
-  const count = ref(16)
-  const randomList = () => {
-    let i = list.value.length
-    for (i; i < count.value; i++) {
-      const cardInfo = {
-        contentId: i + 1,
-        id: i,
-        nickName: 'tofu用户' + i,
-        share: Math.floor(Math.random() * 9999),
-        message: Math.floor(Math.random() * 9999),
-        like: Math.floor(Math.random() * 9999),
+  let cardInfo = reactive({})
+
+  const getContent = () => {
+    axios.get(url + '/content/getContent', {
+
+    }).then((response) => {
+      for (let item of response.data.data) {
+        cardInfo = item
+        list.value.push(cardInfo)
       }
-      list.value.push(cardInfo)
-    }
-    count.value += 16
+      console.log(list.value)
+    })
   }
 
-  const load = () => {
-    setTimeout(() => {
-      randomList()
-    }, 2000)
-  }
+  // const randomHeight = () => {
+  //   return String(Math.random() * (600 - 100) + 100) + 'px'
+  // }
+  // const count = ref(16)
+  // const randomList = () => {
+  //   let i = list.value.length
+  //   for (i; i < count.value; i++) {
+  //     const cardInfo = {
+  //       contentId: i + 1,
+  //       id: i,
+  //       nickName: 'tofu用户' + i,
+  //       share: Math.floor(Math.random() * 9999),
+  //       message: Math.floor(Math.random() * 9999),
+  //       like: Math.floor(Math.random() * 9999),
+  //     }
+  //     list.value.push(cardInfo)
+  //   }
+  //   count.value += 16
+  // }
+  //
+  // const load = () => {
+  //   setTimeout(() => {
+  //     randomList()
+  //   }, 2000)
+  // }
 
   onMounted(() => {
-    randomList()
-    console.log(list.value)
+    getContent()
   })
 
 </script>
