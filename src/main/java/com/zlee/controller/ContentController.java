@@ -26,7 +26,7 @@ public class ContentController {
 
     @PostMapping("/newPicture")
     public Result<Object> newPicture(@RequestParam("pictureFile") List<MultipartFile> files,
-                                     @RequestParam("userId") String userId,
+                                     @RequestParam("userId") Integer userId,
                                      @RequestParam("nickName") String nickName,
                                      @RequestParam("contentType") String contentType,
                                      @RequestParam("text") String text) {
@@ -36,12 +36,31 @@ public class ContentController {
         pictureContentMap.put("nickName", nickName);
         pictureContentMap.put("contentType", contentType);
         pictureContentMap.put("text", text);
-        return contentService.newContent(files, pictureContentMap);
+        return contentService.newPicture(files, pictureContentMap);
     }
 
     @GetMapping("/getContent")
-    public Result<Object> getContent() {
+    public Result<Object> getContent(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                     @RequestParam(value = "userId", defaultValue = "") Integer userId) {
 
-        return ResponseData.success(contentService.getContent());
+
+        return ResponseData.success(contentService.getContent(pageNum, userId));
     }
+
+    @PutMapping("/like")
+    public Result<Object> like(@RequestParam("type") String type,
+                               @RequestParam("userId") Integer userId,
+                               @RequestParam("contentId") Integer contentId){
+
+        return contentService.like(type, userId, contentId);
+    }
+
+    @PutMapping("/collect")
+    public Result<Object> collect(@RequestParam("type") String type,
+                               @RequestParam("userId") Integer userId,
+                               @RequestParam("contentId") Integer contentId){
+
+        return contentService.collect(type, userId, contentId);
+    }
+
 }

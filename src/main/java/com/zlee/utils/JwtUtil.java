@@ -2,12 +2,15 @@ package com.zlee.utils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author z-Lee
@@ -48,6 +51,14 @@ public class JwtUtil {
         claimMap.forEach(builder::withClaim);
         builder.withExpiresAt(new Date(System.currentTimeMillis() + expire));
         return builder.sign(ALGORITHM);
+    }
+
+    public static String renewToken(String token) {
+        HashMap<String, String> claimMap = new HashMap<>(16);
+        for (Map.Entry<String, Claim> claimEntry : parseToken(token).getClaims().entrySet()) {
+            claimMap.put(claimEntry.getKey(), claimEntry.getValue().asString());
+        }
+        return createToken(claimMap);
     }
 
     /**

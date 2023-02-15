@@ -40,7 +40,6 @@ public class ContentCommentServiceImpl extends ServiceImpl<ContentCommentMapper,
     }
 
     public Result<Object> insertComment(ContentComment comment) {
-
         LambdaUpdateWrapper<TofuContent> wrapper = new LambdaUpdateWrapper<>();
         wrapper.setSql("COMMENT_NUM = COMMENT_NUM + 1");
         wrapper.eq(TofuContent::getContentId, comment.getContentId());
@@ -48,4 +47,5 @@ public class ContentCommentServiceImpl extends ServiceImpl<ContentCommentMapper,
         contentService.update(wrapper);
         return ResponseData.success("评论成功");
     }
+
 }

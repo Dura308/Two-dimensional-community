@@ -53,6 +53,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         // 请求放开
                         .requestMatchers("/home/loginByPwd").anonymous()
+                        .requestMatchers("/home/loginByVfc").anonymous()
+                        .requestMatchers("/home/sendRegisterVfc").anonymous()
+                        .requestMatchers("/home/sendLoginVfc").anonymous()
+                        .requestMatchers("/home/register").anonymous()
                         .requestMatchers("/content/getContent").permitAll()
                         .requestMatchers("/home/getComments").permitAll()
                         .requestMatchers("/errorForward").anonymous()

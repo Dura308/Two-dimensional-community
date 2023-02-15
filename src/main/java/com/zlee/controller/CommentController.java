@@ -30,7 +30,6 @@ public class CommentController {
 
     @PostMapping("/reply")
     public Result<Object> reply(@RequestBody ContentComment comment) {
-
         return commentService.insertComment(comment);
     }
 

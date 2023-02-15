@@ -25,12 +25,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String loginAccount) throws UsernameNotFoundException {
 
-        LambdaQueryWrapper<TofuUser> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(TofuUser::getPhone, username);
+        TofuUser user = userMapper.selectOne(
+                new LambdaQueryWrapper<TofuUser>()
+                        .eq(TofuUser::getPhone, loginAccount)
+                        .or()
+                        .eq(TofuUser::getEmail, loginAccount));
 
-        TofuUser user = userMapper.selectOne(wrapper);
         if(Objects.isNull(user)){
             throw new RuntimeException("该用户不存在");
         }

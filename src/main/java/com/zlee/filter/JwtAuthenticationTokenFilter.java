@@ -1,5 +1,6 @@
 package com.zlee.filter;
 
+import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.zlee.utils.JwtUtil;
 import com.zlee.utils.RedisUtil;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -48,14 +50,24 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             request.getRequestDispatcher("/errorForward").forward(request, response);
             filterChain.doFilter(request, response);
         }
+
         assert decodedJwt != null;
         String uuid = String.valueOf(decodedJwt.getClaim("uuid").asString());
-        if(Objects.isNull(uuid)){
+        if(Objects.isNull(uuid) || !redisUtil.hasKey("login:" + uuid)){
             throw new RuntimeException("用户未登录");
         }
 
+        long time = decodedJwt.getExpiresAt().getTime() - System.currentTimeMillis();
+        //小于10分钟则刷新token
+        if(time < 10 * 60 * 1000){
+            String renewToken = JwtUtil.renewToken(token);
+            redisUtil.expire("login:" + uuid, 60L * 60);
+            response.addHeader("renew-token", renewToken);
+            response.setHeader("Access-Control-Expose-Headers","renew-token");
+        }
+
         //用户存在且已登录
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(uuid, null, null);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(token, null, null);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         filterChain.doFilter(request, response);
     }

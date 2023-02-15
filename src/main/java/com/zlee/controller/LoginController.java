@@ -27,14 +27,38 @@ public class LoginController {
         this.commentService = commentService;
     }
 
+    @PostMapping("/sendLoginVfc")
+    public Result<Object> sendLoginVfc(@RequestParam("loginAccount") String loginAccount){
+        return userService.sendLoginVfc(loginAccount);
+    }
+
+    @PostMapping("/loginByVfc")
+    public Result<Object> loginByVfc(@RequestParam("loginAccount") String loginAccount,
+                                     @RequestParam("vfc") String vfc) {
+        return userService.loginByVfc(loginAccount, vfc);
+    }
+
+    @PostMapping("/sendRegisterVfc")
+    public Result<Object> sendRegisterVfc(@RequestParam("registAccount") String registAccount){
+        return userService.sendRegisterVfc(registAccount);
+    }
+
+    @PostMapping("/register")
+    public Result<Object> register(@RequestParam("registAccount") String registAccount,
+                                   @RequestParam("vfc") String vfc) {
+        return userService.register(registAccount, vfc);
+    }
+
     @PostMapping("/loginByPwd")
-    public Result<Object> loginByPwd(@RequestBody TofuUser user) {
-        return userService.login(user);
+    public Result<Object> loginByPwd(@RequestParam("loginAccount") String loginAccount,
+                                     @RequestParam("password") String password) {
+        return userService.loginByPwd(loginAccount, password);
     }
 
     @GetMapping("/logOut")
-    public Result<Object> logOut(@Param("uuid") String uuid) {
-        return userService.logOut(uuid);
+    public Result<Object> logOut(@Param("token") String token) {
+        return userService.logOut(token);
     }
+
 
 }
