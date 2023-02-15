@@ -1,16 +1,16 @@
 <template>
-  <a href="#" class="like-btn" ref="likeButton" @click="dianzan">
+  <a href="#" class="like-btn" ref="likeButton" @click="dianzan(props.isLike)">
     <!-- like button icon svg -->
     <svg class="like-icon" ref="likeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
       <path d="M12 4.419c-2.826-5.695-11.999-4.064-11.999 3.27 0 7.27 9.903 10.938 11.999
-               15.311 2.096-4.373 12-8.041 12-15.311 0-7.327-9.17-8.972-12-3.27z" />
+               15.311 2.096-4.373 12-8.041 12-15.311 0-7.327-9.17-8.972-12-3.27z" :style="{fill: props.isLike ? '#ec3e3e' : '#767676'}"/>
     </svg>
   </a>
 </template>
 
 <script lang="ts" setup>
 
-  import {getCurrentInstance, inject, onMounted} from "vue"
+  import {defineProps, getCurrentInstance, inject, onMounted, PropType} from "vue"
   import {ElNotification} from "element-plus";
   import {useStore} from "vuex";
   const store = useStore()
@@ -18,11 +18,19 @@
   let likeButton = instance?.refs.likeButton
   let likeIcon = instance?.refs.likeIcon
 
-  const dianzan = () => {
+  const props = defineProps({
+    isLike:{
+      type: Boolean
+    }
+  })
+
+  const dianzan = (isLike) => {
     if (store.state.token === null) {
       return
     }
-    likeButton.classList.toggle("active");
+    if(!isLike){
+      likeButton.classList.toggle("active");
+    }
     if (likeButton.classList.contains("active")) {
       createClones(likeButton);
     }

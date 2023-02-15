@@ -12,11 +12,13 @@
       </div>
     </div>
     <div class="user-content">
-      <span style="font-size: 14px">{{contentInfo.text}}</span>
+      <span style="font-size: 14px;cursor: pointer">{{contentInfo.text}}</span>
       <div class="content">
-        <template v-for="(item, index) in content">
-          <el-image :src="item.url"></el-image>
-        </template>
+        <el-scrollbar max-height="468px">
+          <template v-for="(item, index) in content">
+            <el-image :src="item.url"></el-image>
+          </template>
+        </el-scrollbar>
       </div>
     </div>
     <div class="el-card-bottom">
@@ -103,7 +105,7 @@
         </el-link>
       </div>
       <div class="bottom-item" @click="userOperation('like')">
-        <vue-star />
+        <vue-star :isLike="isLike"/>
         <span>{{ contentInfo.likeNum }}</span>
       </div>
     </div>
@@ -173,14 +175,27 @@
   import {UserFilled, ChatLineRound, Star, Share, StarFilled} from "@element-plus/icons-vue"
   import { ElNotification } from 'element-plus'
   import "@/icon.js"
-  import {computed, defineProps, getCurrentInstance, inject, PropType, reactive, ref, withDefaults} from "vue";
+  import {
+    computed,
+    defineProps,
+    getCurrentInstance,
+    inject,
+    onMounted,
+    PropType,
+    reactive,
+    ref,
+    withDefaults
+  } from "vue";
   import VueStar from '@/components/dist-dianzan/dianzan'
   import {useStore} from "vuex";
   import axios from "axios";
   import url from "@/index";
   import mitt from "mitt";
+  import {newGetRequest, newPostRequest, newPutRequest} from "@/utils/api";
 
   interface List{
+    isLike?: boolean,
+    isCollect?: boolean,
     contentInfo?: {},
     content?: {}
   }
@@ -189,8 +204,6 @@
   const loginUser = computed(() => {
     return store.state.loginUser
   })
-
-  const emitter = mitt()
 
   const props = defineProps({
     list: {
@@ -202,33 +215,43 @@
     return 'http://47.109.51.114:8089/avatar/' + props.list.contentInfo.userId + '.png'
   })
 
+  const isLike = ref()
   const contentInfo = computed(() => {
     return props.list.contentInfo
   })
-
   const content = computed(() => {
     return props.list.content
   })
 
+  //判断是否登录
+  const isLogin = () => {
+    return store.state.token === null
+  }
+
   const userOperation = (mode) => {
-    //判断是否登录
-    console.log(1)
-    if (store.state.token === null) {
-      console.log(store.state.token)
+    if (isLogin()) {
       store.commit('changeLoginDialogVisible')
       return
     }
-    console.log(2)
     if (mode === 'collect'){
-      collectClick()
+      collect()
     }else if (mode === 'like'){
       like()
     }
   }
 
-  const isCollect = ref(false)
-  const collectClick = () => {
+  const isCollect = ref()
+  const collect = () => {
     isCollect.value = !isCollect.value
+    let formData = new FormData()
+    formData.append('userId', loginUser.value.userId)
+    formData.append('contentId', contentInfo.value.contentId)
+    formData.append('type', isCollect.value? 'collect' : 'cancelCollect')
+    newPutRequest('/content/collect', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
   }
 
   const share = (mode) => {
@@ -239,16 +262,22 @@
     })
   }
 
-  const isLike = ref(false)
   const like = () => {
     isLike.value = !isLike.value
-    if(isLike.value){
-      contentInfo.value.likeNum++
-    }else {
-      contentInfo.value.likeNum--
-    }
+    isLike.value ? contentInfo.value.likeNum++ : contentInfo.value.likeNum--
+
+    let formData = new FormData()
+    formData.append('userId', loginUser.value.userId)
+    formData.append('contentId', contentInfo.value.contentId)
+    formData.append('type', isLike.value ? 'like' : 'dislike')
+    newPutRequest('/content/like', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
   }
 
+  //---------------展开评论---------------
   const commentsVisible = ref(false)
   const expandComments = () => {
     commentsVisible.value = !commentsVisible.value
@@ -259,25 +288,21 @@
     replyFormVisible.value = false
   }
 
+  //-----头像地址--------
   const avatarUrl = computed(() => {
     return store.state.loginUser.avatar
   })
 
-
   const comments = ref()
   const getComments = (contentId) => {
     console.log('获取内容' + contentId + '评论中')
-    axios.get(url + '/home/getComments',{
-      params: {
-        contentId: contentId
-      }
-    }).then(function (response) {
-      console.log(response.data)
-      comments.value = response.data.data
-    }).catch(function (error) {
-      console.log(error)
+    newGetRequest('/home/getComments', {
+      contentId: contentId
+    }).then(response => {
+      comments.value = response.data
     })
   }
+
   const replyFormVisible = ref(false)
   const replyTo = ref()
   const replyMsg = ref()
@@ -290,8 +315,12 @@
   }
 
   const replySubmit = (rootReply) => {
-    axios.post(url + '/home/reply', {
-      commentId: '',
+    if (isLogin()) {
+      store.commit('changeLoginDialogVisible')
+      return
+    }
+    newPostRequest('/home/reply', {
+      commentId: null,
       userId: loginUser.value.userId,
       nickName: loginUser.value.nickName,
       avatar: loginUser.value.avatar,
@@ -302,8 +331,8 @@
       rootParentId: rootReply ? null : (replyTo.value.rootParentId === null ? replyTo.value.commentId : replyTo.value.rootParentId),
       createdTime: null,
       child: null
-    }).then(function (response) {
-      if(response.data.code === 200){
+    }).then(response => {
+      if(response.code === 200){
         contentInfo.value.commentNum++
         getComments(contentInfo.value.contentId)
         replyFormVisible.value = false
@@ -311,8 +340,12 @@
         rootReplyMsg.value = ''
       }
     })
-
   }
+
+  onMounted(() => {
+    isLike.value = props.list.isLike
+    isCollect.value = props.list.isCollect
+  })
 
 </script>
 
@@ -333,9 +366,8 @@
   }
 
   .content{
-    /*height: 200px;*/
-    /*background-color: #D3DCE6;*/
     margin-top: 5px;
+    cursor: pointer;
   }
 
   .nick-name{

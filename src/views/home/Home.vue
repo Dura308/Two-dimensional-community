@@ -8,7 +8,6 @@
       </div>
     </el-container>
   </div>
-
 </template>
 
 <script lang = "ts" setup>

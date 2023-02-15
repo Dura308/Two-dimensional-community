@@ -1,5 +1,7 @@
 <template>
-  <div class="item-newPicture">
+  <div class="item-newPicture"
+       v-loading="loading"
+       element-loading-text="正在上传...">
     <el-card class="box-card" shadow="hover">
       <template #header>
         <div class="card-header">
@@ -34,31 +36,47 @@
   import url from "@/index";
   import {useRoute} from "vue-router";
   import {compressionFile} from "@/utils/compressImage";
+  import {ElMessage} from "element-plus";
+  import {newPostRequest} from "@/utils/api";
 
   const store = useStore()
   const route = useRoute()
   // do not use same name with ref
 
-  const text = ref()
+  const text = ref('')
   const upload = ref<any>()
 
+  const loading = ref(false)
+
   const onSubmit = async () => {
+    loading.value = true
     let formData = new FormData()
     for (const file of upload.value.fileList) {
+      //图片压缩
       formData.append('pictureFile',await compressionFile(file.raw, 'image/jpeg', 0.5))
     }
     formData.append('userId', String(route.query.userId))
     formData.append('nickName', String(route.query.nickName))
     formData.append('contentType', 'picture')
     formData.append('text', text.value)
-    axios.post(url + "/content/newPicture", formData,{
+
+    newPostRequest('/content/newPicture', formData, {
       headers: {
         "Content-Type": "multipart/form-data"
       }
-    }).then(function (response) {
-      console.log(response)
-    }).catch(function (error) {
-      console.log(error)
+    }).then(response => {
+      loading.value = false
+      if (response.code === 200){
+        ElMessage({
+          message: '发布成功，即将关闭当前页面',
+          type: 'success'
+        })
+        setTimeout(() => {
+          window.close()
+        }, 2000)
+      }else {
+        ElMessage.error(response.data)
+      }
     })
   }
 </script>

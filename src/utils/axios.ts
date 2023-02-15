@@ -1,10 +1,8 @@
 import axios from 'axios'
 import {ElMessage} from "element-plus";
-import {useStore} from "vuex";
+import store from '../store';
 
-const store = useStore()
 
-// axios.defaults.headers.common['token'] = localStorage.getItem('token')
 
 // Request interceptors for API calls
 axios.interceptors.request.use(
@@ -19,18 +17,13 @@ axios.interceptors.request.use(
 );
 axios.interceptors.response.use(
   response => {
-    console.log(response.data)
-    if(response.data.code === -1){
-      ElMessage.error(response.data.data)
+    let renewToken = response.headers["renew-token"];
+    console.log(renewToken)
+    if (renewToken != undefined){
+      store.commit('setToken', renewToken)
+      localStorage.setItem('token', renewToken)
+      console.log(store.state.token)
     }
-    if(response.data.code === -10000){
-      ElMessage.error(response.data.data)
-      store.commit('removeToken')
-      localStorage.removeItem('store')
-      localStorage.removeItem('token')
-      location.reload()
-    }
-
     return response
   }
 )

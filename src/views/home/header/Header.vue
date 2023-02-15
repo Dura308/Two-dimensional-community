@@ -131,12 +131,12 @@
             { min: 11, max: 11, message: '手机号码不低于11位数', trigger: 'blur' },
             { pattern: /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/, message: '请输入正确的手机号码' }
             ]">
-          <el-input v-model="loginFormByVfc.tid" placeholder="请输入手机号" size="large"/>
+          <el-input v-model="loginFormByVfc.loginAccount" placeholder="请输入手机号或者邮箱" size="large"/>
         </el-form-item>
         <el-form-item>
           <el-input v-model="loginFormByVfc.loginVfc" placeholder="短信验证码" size="large"/>
           <div class="input-extra">
-            <el-button class="btn-getVfc" type="primary">点击获取</el-button>
+            <el-button class="btn-getVfc" type="primary" @click="getLoginVfc">点击获取</el-button>
           </div>
         </el-form-item>
         <div class="login-actions">
@@ -145,7 +145,7 @@
         </div>
         <el-button
           class="btn-login-submit"
-          @click = login
+          @click = loginByVfc
           type="primary"
           size="large">登&emsp;&emsp;录</el-button>
 
@@ -166,10 +166,10 @@
         :model="loginFormByPassword"
         :hidden = "loginFormByVfcVisible">
         <el-form-item>
-          <el-input v-model="loginFormByPassword.phone" placeholder="请输入手机号或邮箱账号" size="large"/>
+          <el-input v-model="loginFormByPassword.loginAccount" placeholder="请输入手机号或邮箱账号" size="large"/>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="loginFormByPassword.userPass" placeholder="请输入账户密码" size="large"/>
+          <el-input v-model="loginFormByPassword.password" placeholder="请输入账户密码" size="large"/>
         </el-form-item>
         <div class="login-actions">
           <span @click="loginFormByVfcVisible = true">手机验证码登录</span>
@@ -213,12 +213,12 @@
         class="regist-form"
         :model="registForm">
         <el-form-item>
-          <el-input v-model="registForm.registUid" placeholder="请输入手机号或者邮箱" size="large"/>
+          <el-input v-model="registForm.registAccount" placeholder="请输入手机号或者邮箱" size="large"/>
         </el-form-item>
         <el-form-item>
           <el-input v-model="registForm.registVfc" placeholder="短信验证码" size="large"/>
           <div class="input-extra">
-            <el-button class="btn-getVfc" type="primary">点击获取</el-button>
+            <el-button class="btn-getVfc" type="primary" @click="getRegisterVfc">点击获取</el-button>
           </div>
         </el-form-item>
         <el-button
@@ -254,7 +254,8 @@
   import url from '@/index'
   import {useStore} from "vuex";
   import {useRouter} from "vue-router";
-  import {ElNotification} from "element-plus";
+  import  {ElMessage, ElNotification} from "element-plus";
+  import {newGetRequest, newPostRequest} from "../../../utils/api";
 
   const store = useStore()
   const router = useRouter()
@@ -274,15 +275,15 @@
   const registDialogVisible = ref(false)
   const loginFormByVfcVisible = ref(true)
   const loginFormByVfc = reactive({
-    loginUid: '',
+    loginAccount: '',
     loginVfc: ''
   })
   const loginFormByPassword = reactive({
-    phone: '',
-    userPass: ''
+    loginAccount: '',
+    password: ''
   })
   const registForm = reactive({
-    registUid: '',
+    registAccount: '',
     registVfc: ''
   })
 
@@ -298,60 +299,126 @@
     return loginUser.value.avatar
   })
 
+  /** 登录加载 */
+  const loginLoading = ref(false)
+
   /**密码登陆*/
   const loginByPassword = () => {
     loginLoading.value = true
-    axios.post(url + '/home/loginByPwd', {
-      phone: loginFormByPassword.phone,
-      userPass: loginFormByPassword.userPass
-    }).then(function (response) {
-      if (response.data.code == 200) {
-        const token = response.data.data
-        console.log(token)
-        store.commit('setToken', token)
-        localStorage.setItem('token', token)
-        changeLoginDialogVisible()
-        loginLoading.value = false
-        location.reload()
-        ElNotification({
-          title: '登录成功',
-          message: '欢迎回来,' + store.state.loginUser.nickName,
-          duration: 3000,
-        })
+    let formData = new FormData()
+    formData.append('loginAccount', loginFormByPassword.loginAccount)
+    formData.append('password', loginFormByPassword.password)
+    newPostRequest('/home/loginByPwd', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
       }
-      if(response.data.code === -1){
+    }).then(response => {
+      if (response.code == 200) {
+        finishLogin(response.data)
+      }
+      if(response.code === -1){
         loginLoading.value = false
       }
     })
   }
 
   /**登录校验*/
-  const login = (formEl: FormInstance | undefined) => {
-    console.log(formEl)
-    if (!formEl) return
-    formEl.validate((valid) => {
-      if (valid) {
-        console.log('submit!')
-      } else {
-        console.log('error submit!')
-        return false
+  const loginByVfc = () => {
+    let formData = new FormData()
+    formData.append('loginAccount', loginFormByVfc.loginAccount)
+    formData.append('vfc', loginFormByVfc.loginVfc)
+    newPostRequest('/home/loginByVfc', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    }).then(response => {
+      if(response.code === 200){
+        finishLogin(response.data)
+      }
+      if(response.code === -1){
+        loginLoading.value = false
       }
     })
   }
 
-  /** 登录加载 */
-  const loginLoading = ref(false)
+  const getLoginVfc = () => {
+    let formData = new FormData()
+    formData.append('loginAccount', loginFormByVfc.loginAccount)
+    newPostRequest('/home/sendLoginVfc', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    }).then(response => {
+      if(response.code === 200){
+        ElMessage({
+          message: response.data
+        })
+      }
+    })
+  }
 
-  /** 登出 */
-  const logOut = () => {
-    store.commit('removeToken')
-    localStorage.removeItem('store')
-    localStorage.removeItem('token')
+  /** 获取注册验证码 */
+  const getRegisterVfc = () => {
+    let formData = new FormData()
+    formData.append('registAccount', registForm.registAccount)
+    newPostRequest('/home/sendRegisterVfc', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    }).then(response => {
+      if(response.code === 200){
+        ElMessage({
+          message: response.data
+        })
+      }
+    })
   }
 
   /** 注册 */
   const regist = () => {
+    let formData = new FormData()
+    formData.append('registAccount', registForm.registAccount)
+    formData.append('vfc', registForm.registVfc)
+    newPostRequest('/home/register', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    }).then(response => {
+      if(response.code === 200){
+        ElMessage({
+          message: response.data
+        })
+      }
+    })
+  }
 
+  const finishLogin = (token) => {
+
+    console.log(token)
+    store.commit('setToken', token)
+    localStorage.setItem('token', token)
+    changeLoginDialogVisible()
+    loginLoading.value = false
+    location.reload()
+    ElNotification({
+      title: '登录成功',
+      message: '欢迎回来,' + store.state.loginUser.nickName,
+      duration: 3000,
+    })
+  }
+
+  /** 登出 */
+  const logOut = () => {
+    newGetRequest('/home/logOut', {
+      token: store.state.token
+    }).then(response => {
+      if(response.code === 200){
+        store.commit('removeToken')
+        localStorage.removeItem('store')
+        localStorage.removeItem('token')
+        location.reload()
+      }
+    })
   }
 
   /** 发布图片 */

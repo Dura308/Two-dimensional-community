@@ -1,11 +1,13 @@
 <template>
   <el-upload ref="uploadRef"
              :file-list="fileList"
+             :limit="3"
              action="#"
              list-type="picture-card"
              :on-change="fileChange"
              :on-preview="handlePictureCardPreview"
              :on-remove="handleRemove"
+             :on-exceed="handleExceed"
              :auto-upload="false">
     <el-icon><Plus /></el-icon>
 
@@ -18,10 +20,11 @@
 <script lang="ts" setup>
   import {computed, defineExpose, onMounted, ref} from 'vue'
   import { Delete, Download, Plus, ZoomIn } from '@element-plus/icons-vue'
-  import type { UploadFile } from 'element-plus'
+  import type {UploadFile, UploadProps} from 'element-plus'
   import {useStore} from "vuex";
   import {useRoute} from "vue-router";
   import type { UploadInstance, UploadUserFile } from 'element-plus'
+  import {ElMessage} from "element-plus";
 
   const store = useStore()
   const route = useRoute()
@@ -40,6 +43,12 @@
 
   const handleRemove = (uploadFile, uploadFiles) => {
     fileList.value = uploadFiles
+  }
+
+  const handleExceed = () => {
+    ElMessage.warning(
+      `一次最多上传 3 张图片哦 ~ ~`
+    )
   }
 
   const handlePictureCardPreview = (file: UploadFile) => {
