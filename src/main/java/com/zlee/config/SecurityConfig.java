@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/content/getContent").permitAll()
                         .requestMatchers("/home/getComments").permitAll()
                         .requestMatchers("/errorForward").anonymous()
+                        .requestMatchers("/loginError").anonymous()
                         // 其他地址的访问均需验证权限
                         .anyRequest().authenticated()
                 )

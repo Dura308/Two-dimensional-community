@@ -6,10 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zlee.Result.ResponseData;
 import com.zlee.Result.Result;
-import com.zlee.entity.ContentPicture;
-import com.zlee.entity.TofuContent;
-import com.zlee.entity.TofuUserCollect;
-import com.zlee.entity.TofuUserLike;
+import com.zlee.entity.*;
 import com.zlee.mapper.*;
 import com.zlee.service.TofuContentService;
 import com.zlee.utils.FtpUtil;
@@ -65,9 +62,11 @@ public class TofuContentServiceImpl extends ServiceImpl<TofuContentMapper, TofuC
     /** 获取所有帖子 */
     public Object getContent(Integer pageNum, Integer userId) {
         ArrayList<HashMap<String, Object>> contentMapList = new ArrayList<>();
-
         //获取内容
-        Page<TofuContent> tofuContentPage = contentMapper.selectPage(new Page<>(pageNum, PAGE_SIZE), null);
+        Page<TofuContent> tofuContentPage = contentMapper.selectPage(
+                new Page<>(pageNum, PAGE_SIZE),
+                new LambdaQueryWrapper<TofuContent>()
+                        .orderByDesc(TofuContent::getCreatedTime));
 
         long total = tofuContentPage.getTotal();
         long totalPage = 0;
@@ -115,6 +114,16 @@ public class TofuContentServiceImpl extends ServiceImpl<TofuContentMapper, TofuC
                 contentMap.put("content", pictureList);
             }
 
+            //视频类型
+            if (Objects.equals(tofuContent.getContentType(), VIDEO)) {
+                List<ContentVideo> videoList =
+                        videoMapper.selectList(
+                                new LambdaQueryWrapper<ContentVideo>()
+                                        .eq(ContentVideo::getContentId, tofuContent.getContentId())
+                        );
+                contentMap.put("contentInfo", tofuContent);
+                contentMap.put("content", videoList);
+            }
 
             //是否收藏
             for (TofuUserCollect userCollect : collectList) {
@@ -167,11 +176,22 @@ public class TofuContentServiceImpl extends ServiceImpl<TofuContentMapper, TofuC
         //存图片
         for (MultipartFile file : files) {
             try {
-                String pictureUrl = FtpUtil.uploadImageByInputStream(String.valueOf(contentMap.get("userId")), file);
+                String pictureUrl = FtpUtil.uploadImage(String.valueOf(contentMap.get("userId")), file);
                 pictureMapper.insert(new ContentPicture(contentId, pictureUrl));
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
+        }
+        return ResponseData.success("发布成功！");
+    }
+
+    public Result<Object> newVideo(MultipartFile file, HashMap<String, Object> contentMap){
+        String contentId = newContentInfo(contentMap);
+        try {
+            String videoUrl = FtpUtil.uploadVideo(String.valueOf(contentMap.get("userId")), file);
+            videoMapper.insert(new ContentVideo(contentId, videoUrl));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return ResponseData.success("发布成功！");
     }

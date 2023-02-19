@@ -52,16 +52,17 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         }
 
         assert decodedJwt != null;
-        String uuid = String.valueOf(decodedJwt.getClaim("uuid").asString());
-        if(Objects.isNull(uuid) || !redisUtil.hasKey("login:" + uuid)){
-            throw new RuntimeException("用户未登录");
+        String userId = String.valueOf(decodedJwt.getClaim("userId").asString());
+        if(Objects.isNull(userId) || !redisUtil.hasKey("login:" + userId)){
+            request.getRequestDispatcher("/loginError").forward(request, response);
+            filterChain.doFilter(request, response);
         }
 
         long time = decodedJwt.getExpiresAt().getTime() - System.currentTimeMillis();
         //小于10分钟则刷新token
         if(time < 10 * 60 * 1000){
             String renewToken = JwtUtil.renewToken(token);
-            redisUtil.expire("login:" + uuid, 60L * 60);
+            redisUtil.expire("login:" + userId, 60L * 600);
             response.addHeader("renew-token", renewToken);
             response.setHeader("Access-Control-Expose-Headers","renew-token");
         }

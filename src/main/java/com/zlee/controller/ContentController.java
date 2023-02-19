@@ -39,10 +39,24 @@ public class ContentController {
         return contentService.newPicture(files, pictureContentMap);
     }
 
+    @PostMapping("/newVideo")
+    public Result<Object> newVideo(@RequestParam("videoFile") MultipartFile file,
+                                     @RequestParam("userId") Integer userId,
+                                     @RequestParam("nickName") String nickName,
+                                     @RequestParam("contentType") String contentType,
+                                     @RequestParam("text") String text) {
+
+        HashMap<String, Object> pictureContentMap = new HashMap<>(16);
+        pictureContentMap.put("userId", userId);
+        pictureContentMap.put("nickName", nickName);
+        pictureContentMap.put("contentType", contentType);
+        pictureContentMap.put("text", text);
+        return contentService.newVideo(file, pictureContentMap);
+    }
+
     @GetMapping("/getContent")
     public Result<Object> getContent(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                      @RequestParam(value = "userId", defaultValue = "") Integer userId) {
-
 
         return ResponseData.success(contentService.getContent(pageNum, userId));
     }

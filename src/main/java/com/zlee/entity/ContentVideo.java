@@ -4,13 +4,17 @@ import java.io.Serial;
 import java.io.Serializable;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * content_video
  * @author 
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("CONTENT_VIDEO")
 public class ContentVideo implements Serializable {
     /**

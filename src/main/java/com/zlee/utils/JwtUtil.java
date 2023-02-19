@@ -2,11 +2,10 @@ package com.zlee.utils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.zlee.entity.TofuUser;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +16,7 @@ import java.util.Map;
  * @date 2023-01-29-20:10
  */
 public class JwtUtil {
+
     /**
      * 秘钥：需要妥善保存，一旦泄露token有可能被破解
      */
@@ -38,7 +38,7 @@ public class JwtUtil {
      * @return token令牌
      */
     public static String createToken(HashMap<String, String> claimMap) {
-        return createToken(claimMap, EXPIRE_DATE);
+        return createToken(claimMap, EXPIRE_DATE * 240);
     }
 
     /**
@@ -59,6 +59,20 @@ public class JwtUtil {
             claimMap.put(claimEntry.getKey(), claimEntry.getValue().asString());
         }
         return createToken(claimMap);
+    }
+
+    /**
+     * 登陆验证通过生成带基本信息的token
+     * @param loginUser 当前登录用户
+     * @return token
+     * */
+    public static String generateToken(TofuUser loginUser) {
+        //认证通过生成一个token
+        HashMap<String, String> claimMap = new HashMap<>(16);
+        claimMap.put("userId", String.valueOf(loginUser.getUserId()));
+        claimMap.put("nickName", loginUser.getNickName());
+        claimMap.put("avatar", loginUser.getAvatar());
+        return JwtUtil.createToken(claimMap);
     }
 
     /**
