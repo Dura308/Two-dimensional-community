@@ -21,12 +21,10 @@
   import {computed, defineExpose, onMounted, ref} from 'vue'
   import { Delete, Download, Plus, ZoomIn } from '@element-plus/icons-vue'
   import type {UploadFile, UploadProps} from 'element-plus'
-  import {useStore} from "vuex";
   import {useRoute} from "vue-router";
   import type { UploadInstance, UploadUserFile } from 'element-plus'
   import {ElMessage} from "element-plus";
 
-  const store = useStore()
   const route = useRoute()
 
   const headers = computed(() => {

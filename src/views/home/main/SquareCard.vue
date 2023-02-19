@@ -4,7 +4,7 @@
       <el-link type="primary" :underline="false">
         <el-avatar
           :src="contentUserAvatar"
-          :size="30"/>
+          :size="35"/>
       </el-link>
 
       <div class="nick-name">
@@ -14,11 +14,25 @@
     <div class="user-content">
       <span style="font-size: 14px;cursor: pointer">{{contentInfo.text}}</span>
       <div class="content">
-        <el-scrollbar max-height="468px">
+
+        <div class="content-picture" v-if="contentInfo.contentType === 'picture'">
+          <el-scrollbar max-height="468px">
+            <template v-for="(item, index) in content">
+              <el-image :src="item.url" ></el-image>
+            </template>
+          </el-scrollbar>
+        </div>
+
+        <div class="content-video" v-else-if="contentInfo.contentType === 'video'">
           <template v-for="(item, index) in content">
-            <el-image :src="item.url"></el-image>
+            <video :src="item.url"
+                   :controls="videoControl"
+                   @mouseover="videoControl === true"
+                   @mouseout="videoControl === false"
+                   style="width: 100%"/>
           </template>
-        </el-scrollbar>
+        </div>
+
       </div>
     </div>
     <div class="el-card-bottom">
@@ -57,9 +71,7 @@
                     <use xlink:href="#icon-qq"></use>
                   </svg>
                 </i>
-                <span>
-                QQ
-              </span>
+                <span>QQ</span>
               </div>
               <div class="share-item" @click="share('weixin')">
                 <i>
@@ -67,9 +79,7 @@
                     <use xlink:href="#icon-weixin"></use>
                   </svg>
                 </i>
-                <span>
-                微信
-              </span>
+                <span>微信</span>
               </div>
               <div class="share-item" @click="share('weibo')">
                 <i>
@@ -77,9 +87,7 @@
                     <use xlink:href="#icon-weibo"></use>
                   </svg>
                 </i>
-                <span>
-                微博
-              </span>
+                <span>微博</span>
               </div>
               <div class="share-item" @click="share('qq-zone')">
                 <i>
@@ -87,9 +95,7 @@
                     <use xlink:href="#icon-qq-zone"></use>
                   </svg>
                 </i>
-                <span>
-                QQ空间
-              </span>
+                <span>QQ空间</span>
               </div>
             </div>
           </template>
@@ -109,88 +115,81 @@
         <span>{{ contentInfo.likeNum }}</span>
       </div>
     </div>
-
-    <div class="comment-part" v-if="commentsVisible">
-      <div class="comment-form">
-        <el-avatar :src="avatarUrl" ></el-avatar>
-        <el-input class="w-50 m-2 input-comment" v-model="rootReplyMsg" placeholder="发表一条友善的评论..."></el-input>
-        <el-button size="large" @click="replySubmit(true)">发布</el-button>
-      </div>
-      <div class="comment-list">
-        <ul class="root-reply" v-for="(item, index) in comments">
-          <li class="root-reply-info">
-            <div class="root-user-info">
-              <div class="root-user-avatar">
-                <el-avatar :src="item.avatar"></el-avatar>
-              </div>
-              <div class="root-user-nickName">
-                {{item.nickName}}
-              </div>
-            </div>
-            <span style="display: flex">{{item.comment}}</span>
-            <div class="reply-bottom">
-              <span class="reply-time">{{item.createdTime}}</span>
-              <span class="reply-like">赞</span>
-              <span class="reply-dislike">踩</span>
-              <span class="reply-btn" @click="reply(item)">回复</span>
-            </div>
-          </li>
-          <ul class="sub-reply">
-            <li class="sub-reply-info" v-for="(child, childIndex) in item.child">
-              <div class="sub-user-info">
-                <div class="sub-user-avatar">
-                  <el-avatar :src="child.avatar" size="small"></el-avatar>
+    <el-collapse-transition>
+      <div class="comment-part" v-if="commentsVisible">
+        <div class="comment-form">
+          <el-avatar :src="avatarUrl" ></el-avatar>
+          <el-input class="w-50 m-2 input-comment" v-model="rootReplyMsg" placeholder="发表一条友善的评论..."></el-input>
+          <el-button size="large" @click="replySubmit(true)">发布</el-button>
+        </div>
+        <div class="comment-list">
+          <ul class="root-reply" v-for="(item, index) in comments">
+            <li class="root-reply-info">
+              <div class="root-user-info">
+                <div class="root-user-avatar">
+                  <el-avatar :src="item.avatar"></el-avatar>
                 </div>
-                <div class="sub-user-nickName">
-                  {{child.nickName}}
+                <div class="root-user-nickName">
+                  {{item.nickName}}
                 </div>
-                &emsp;回复
-                <el-link :underline="false" type="primary">
-                  @{{child.parentNickName}}
-                </el-link>
               </div>
-              <span>
-                {{' : ' + child.comment}}
-              </span>
+              <span style="display: flex">{{item.comment}}</span>
               <div class="reply-bottom">
-                <span class="reply-time">{{child.createdTime}}</span>
+                <span class="reply-time">{{item.createdTime}}</span>
                 <span class="reply-like">赞</span>
                 <span class="reply-dislike">踩</span>
-                <span class="reply-btn"  @click="reply(child)">回复</span>
+                <span class="reply-btn" @click="reply(item)">回复</span>
               </div>
             </li>
+            <ul class="sub-reply">
+              <li class="sub-reply-info" v-for="(child, childIndex) in item.child">
+                <div class="sub-user-info">
+                  <div class="sub-user-avatar">
+                    <el-avatar :src="child.avatar" size="small"></el-avatar>
+                  </div>
+                  <div class="sub-user-nickName">
+                    {{child.nickName}}
+                  </div>
+                  &emsp;回复
+                  <el-link :underline="false" type="primary">
+                    @{{child.parentNickName}}
+                  </el-link>
+                </div>
+                <span>{{' : ' + child.comment}}</span>
+                <div class="reply-bottom">
+                  <span class="reply-time">{{child.createdTime}}</span>
+                  <span class="reply-like">赞</span>
+                  <span class="reply-dislike">踩</span>
+                  <span class="reply-btn"  @click="reply(child)">回复</span>
+                </div>
+              </li>
+            </ul>
           </ul>
-        </ul>
+        </div>
+        <div class="reply-form" v-if="replyFormVisible">
+          <el-avatar :src="avatarUrl" ></el-avatar>
+          <el-input class="w-50 m-2 input-comment" :placeholder="'回复 @' + replyTo.nickName + ' : '" v-model="replyMsg"></el-input>
+          <el-button size="large" @click="replySubmit(false)">发布</el-button>
+        </div>
       </div>
-      <div class="reply-form" v-if="replyFormVisible">
-        <el-avatar :src="avatarUrl" ></el-avatar>
-        <el-input class="w-50 m-2 input-comment" :placeholder="'回复 @' + replyTo.nickName + ' : '" v-model="replyMsg"></el-input>
-        <el-button size="large" @click="replySubmit(false)">发布</el-button>
-      </div>
-    </div>
+    </el-collapse-transition>
+
   </el-card>
 </template>
 
 <script lang = "ts" setup>
-  import {UserFilled, ChatLineRound, Star, Share, StarFilled} from "@element-plus/icons-vue"
+  import {UserFilled, ChatLineRound, Star, Share} from "@element-plus/icons-vue"
   import { ElNotification } from 'element-plus'
   import "@/icon.js"
   import {
     computed,
     defineProps,
-    getCurrentInstance,
-    inject,
     onMounted,
     PropType,
-    reactive,
     ref,
-    withDefaults
   } from "vue";
   import VueStar from '@/components/dist-dianzan/dianzan'
   import {useStore} from "vuex";
-  import axios from "axios";
-  import url from "@/index";
-  import mitt from "mitt";
   import {newGetRequest, newPostRequest, newPutRequest} from "@/utils/api";
 
   interface List{
@@ -200,9 +199,10 @@
     content?: {}
   }
 
+  const videoControl = ref(true)
   const store = useStore()
-  const loginUser = computed(() => {
-    return store.state.loginUser
+  const loginInfo = computed(() => {
+    return store.state.loginInfo
   })
 
   const props = defineProps({
@@ -244,7 +244,7 @@
   const collect = () => {
     isCollect.value = !isCollect.value
     let formData = new FormData()
-    formData.append('userId', loginUser.value.userId)
+    formData.append('userId', loginInfo.value.userId)
     formData.append('contentId', contentInfo.value.contentId)
     formData.append('type', isCollect.value? 'collect' : 'cancelCollect')
     newPutRequest('/content/collect', formData, {
@@ -267,7 +267,7 @@
     isLike.value ? contentInfo.value.likeNum++ : contentInfo.value.likeNum--
 
     let formData = new FormData()
-    formData.append('userId', loginUser.value.userId)
+    formData.append('userId', loginInfo.value.userId)
     formData.append('contentId', contentInfo.value.contentId)
     formData.append('type', isLike.value ? 'like' : 'dislike')
     newPutRequest('/content/like', formData, {
@@ -290,7 +290,7 @@
 
   //-----头像地址--------
   const avatarUrl = computed(() => {
-    return store.state.loginUser.avatar
+    return store.state.loginInfo.avatar
   })
 
   const comments = ref()
@@ -321,9 +321,9 @@
     }
     newPostRequest('/home/reply', {
       commentId: null,
-      userId: loginUser.value.userId,
-      nickName: loginUser.value.nickName,
-      avatar: loginUser.value.avatar,
+      userId: loginInfo.value.userId,
+      nickName: loginInfo.value.nickName,
+      avatar: loginInfo.value.avatar,
       parentNickName: rootReply ? null : replyTo.value.nickName,
       contentId: contentInfo.value.contentId,
       comment: rootReply ? rootReplyMsg.value : replyMsg.value,
@@ -353,7 +353,10 @@
   .el-card{
     border-radius: 8px;
     margin-bottom: 10px;
-    --el-card-padding: 0px 10px 0 10px;
+
+  }
+  :deep(.el-card__body){
+    --el-card-padding: 5px 10px 0 10px;
   }
 
   .user-info{
@@ -509,5 +512,13 @@
 
   .comment-part{
     margin-bottom: 15px;
+  }
+
+  :deep(.vue3-player-video .rounded-xl){
+    border-radius: 0;
+  }
+
+  :deep(.backdrop-filter){
+    backdrop-filter: blur(0px)!important;
   }
 </style>

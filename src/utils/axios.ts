@@ -2,8 +2,6 @@ import axios from 'axios'
 import {ElMessage} from "element-plus";
 import store from '../store';
 
-
-
 // Request interceptors for API calls
 axios.interceptors.request.use(
   request => {
@@ -17,10 +15,17 @@ axios.interceptors.request.use(
 );
 axios.interceptors.response.use(
   response => {
+    if(response.data.code === -10000){
+      store.commit('removeToken')
+      localStorage.removeItem('store')
+      localStorage.removeItem('token')
+      return response
+    }
+
     let renewToken = response.headers["renew-token"];
     console.log(renewToken)
     if (renewToken != undefined){
-      store.commit('setToken', renewToken)
+      store.commit('parseToken', renewToken)
       localStorage.setItem('token', renewToken)
       console.log(store.state.token)
     }

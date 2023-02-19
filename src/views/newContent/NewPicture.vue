@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-  import {ref} from 'vue'
+  import {onMounted, ref} from 'vue'
   import uploadPicture from '@/components/upload/upload-picture'
   import {useStore} from "vuex";
   import axios from "axios";
@@ -79,6 +79,7 @@
       }
     })
   }
+
 </script>
 
 <style scoped>
@@ -86,6 +87,7 @@
     display: flex;
     flex-direction: column;
     width: 50%;
+    min-width: 850px;
     margin: 3% auto auto;
   }
 

@@ -1,0 +1,17 @@
+Progress: resolved 0, reused 1, downloaded 0, added 0
+Progress: resolved 107, reused 50, downloaded 0, added 0
+Progress: resolved 443, reused 432, downloaded 0, added 0
+ WARN  deprecated sourcemap-codec@1.4.8: Please use @jridgewell/sourcemap-codec instead
+ WARN  deprecated stable@0.1.8: Modern JS already guarantees Array#sort() is a stable sort, so this library is deprecated. See the compatibility table on MDN: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#browser_compatibility
+Packages: +2 -2
+++--
+Progress: resolved 945, reused 944, downloaded 0, added 2, done
+
+dependencies:
++ webpack 5.75.0
+
+ WARN  Issues with peer dependencies found
+.
+└─┬ @vue/eslint-config-standard 6.1.0
+  └── ✕ unmet peer eslint-plugin-vue@^7.0.0: found 8.7.1
+

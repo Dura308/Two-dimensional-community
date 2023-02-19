@@ -1,10 +1,12 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
-import HomeView from '../views/home/Home.vue'
+import homeView from '../views/home/Home.vue'
 import newPictureView from '../views/newContent/NewPicture.vue'
 import newTextView from '../views/newContent/NewText.vue'
 import newQuestionView from '../views/newContent/NewQuestion.vue'
 // @ts-ignore
 import newVideoView from '../views/newContent/NewVideo.vue'
+import personalCenterView from '../views/personal/PersonalCenter.vue'
+
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -14,7 +16,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/home',
     name: 'home',
-    component: HomeView
+    component: homeView
   },
   {
     path: '/newPicture',
@@ -35,6 +37,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/newVideo',
     name: 'newVideo',
     component: newVideoView
+  },
+  {
+    path: '/personalCenter',
+    name: 'personalCenter',
+    component: personalCenterView
   }
 
 ]

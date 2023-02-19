@@ -79,14 +79,8 @@
     console.log(pageNum.value)
     newGetRequest('/content/getContent', {
       pageNum: pageNum.value,
-      userId: store.state.loginUser.userId
+      userId: store.state.loginInfo.userId
     }).then(response => {
-      if(response.code === -10000){
-        store.commit('removeToken')
-        localStorage.removeItem('store')
-        localStorage.removeItem('token')
-        return
-      }
       if(response.code === -1){
         ElMessage.error(response.data)
         return;

@@ -47,7 +47,7 @@ export function newGetRequest(suffixUrl : string, params = {}) {
 export function newPutRequest(suffixUrl : string, formData : any, config = {}) {
   return new Promise((resolve, reject) => {
     axios.put(url + suffixUrl, formData, config).then(response => {
-      resolve(response.data.data);
+      resolve(response.data);
     }).catch(err => {
       reject(err)
     })
