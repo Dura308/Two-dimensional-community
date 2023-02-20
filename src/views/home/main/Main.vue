@@ -82,7 +82,11 @@
       userId: store.state.loginInfo.userId
     }).then(response => {
       if(response.code === -1){
-        ElMessage.error(response.data)
+        ElMessage({
+          message: response.data,
+          grouping: true,
+          type: 'error',
+        })
         return;
       }
       pageNum.value++

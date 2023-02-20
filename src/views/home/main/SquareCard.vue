@@ -1,11 +1,25 @@
 <template>
   <el-card shadow="hover">
     <div class="user-info">
-      <el-link type="primary" :underline="false">
-        <el-avatar
-          :src="contentUserAvatar"
-          :size="35"/>
-      </el-link>
+
+      <el-popover placement="right-end"
+                  :width="336"
+                  :offset="10"
+                  :popper-style="popperStyle"
+                  :show-arrow="false"
+                  @before-enter="getUserCardInfo"
+                  trigger="hover">
+        <template #reference>
+          <el-link type="primary"
+                   :underline="false">
+            <el-avatar
+              :src="contentUserAvatar"
+              :size="35"/>
+          </el-link>
+        </template>
+        <user-card :userInfo="userCardInfo"/>
+      </el-popover>
+
 
       <div class="nick-name">
         <p><el-link>{{ contentInfo.nickName }}</el-link></p>
@@ -191,6 +205,7 @@
   import VueStar from '@/components/dist-dianzan/dianzan'
   import {useStore} from "vuex";
   import {newGetRequest, newPostRequest, newPutRequest} from "@/utils/api";
+  import UserCard from './UserCard'
 
   interface List{
     isLike?: boolean,
@@ -200,6 +215,11 @@
   }
 
   const videoControl = ref(true)
+  const userCardVisible = ref(false)
+  const popperStyle = {
+    borderRadius: '8px',
+    padding: '0'
+  }
   const store = useStore()
   const loginInfo = computed(() => {
     return store.state.loginInfo
@@ -214,6 +234,19 @@
   const contentUserAvatar = computed(() => {
     return 'http://47.109.51.114:8089/avatar/' + props.list.contentInfo.userId + '.png'
   })
+
+  const userCardInfo = ref()
+
+  const getUserCardInfo = () => {
+    console.log('获取卡片信息')
+    newGetRequest('/content/getCardInfo',{
+      userId: loginInfo.value.userId,
+      cardUserId: contentInfo.value.userId
+    }).then(response => {
+      userCardInfo.value = response.data
+    })
+  }
+
 
   const isLike = ref()
   const contentInfo = computed(() => {
@@ -240,20 +273,6 @@
     }
   }
 
-  const isCollect = ref()
-  const collect = () => {
-    isCollect.value = !isCollect.value
-    let formData = new FormData()
-    formData.append('userId', loginInfo.value.userId)
-    formData.append('contentId', contentInfo.value.contentId)
-    formData.append('type', isCollect.value? 'collect' : 'cancelCollect')
-    newPutRequest('/content/collect', formData, {
-      headers: {
-        "Content-Type": "multipart/form-data"
-      }
-    })
-  }
-
   const share = (mode) => {
     ElNotification({
       title: '分享成功',
@@ -262,19 +281,46 @@
     })
   }
 
-  const like = () => {
-    isLike.value = !isLike.value
-    isLike.value ? contentInfo.value.likeNum++ : contentInfo.value.likeNum--
-
+  const isCollect = ref()
+  const collect = () => {
+    isCollect.value = !isCollect.value
     let formData = new FormData()
     formData.append('userId', loginInfo.value.userId)
     formData.append('contentId', contentInfo.value.contentId)
-    formData.append('type', isLike.value ? 'like' : 'dislike')
-    newPutRequest('/content/like', formData, {
-      headers: {
-        "Content-Type": "multipart/form-data"
-      }
-    })
+    if(isCollect.value){
+      newPutRequest('/content/collect', formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      })
+    }else {
+      newPutRequest('/content/cancelCollect', formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      })
+    }
+  }
+
+  const like = () => {
+    isLike.value = !isLike.value
+    isLike.value ? contentInfo.value.likeNum++ : contentInfo.value.likeNum--
+    let formData = new FormData()
+    formData.append('userId', loginInfo.value.userId)
+    formData.append('contentId', contentInfo.value.contentId)
+    if(isLike.value){
+      newPutRequest('/content/like', formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      })
+    }else {
+      newPutRequest('/content/disLike', formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      })
+    }
   }
 
   //---------------展开评论---------------
@@ -353,7 +399,6 @@
   .el-card{
     border-radius: 8px;
     margin-bottom: 10px;
-
   }
   :deep(.el-card__body){
     --el-card-padding: 5px 10px 0 10px;
@@ -362,6 +407,10 @@
   .user-info{
     display: flex;
     align-items: center;
+  }
+
+  .item-user-card{
+    position: absolute;
   }
 
   .user-content{
