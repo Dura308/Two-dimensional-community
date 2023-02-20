@@ -32,9 +32,21 @@ public class UserController {
     }
 
     @PutMapping("/updateAvatar")
-    public Result<Object> updateAvatar(@RequestParam("userId")Integer userId,
+    public Result<Object> updateAvatar(@RequestParam("userId") Integer userId,
                                        @RequestParam("avatarFile") MultipartFile file) {
 
         return userService.updateAvatar(userId,file);
+    }
+
+    @PostMapping("/attention")
+    public Result<Object> attention(@RequestParam("fansUserId") Integer fansUserId,
+                                    @RequestParam("attentionUserId") Integer attentionUserId){
+        return userService.attention(fansUserId, attentionUserId);
+    }
+
+    @PostMapping("/cancelAttention")
+    public Result<Object> cancelAttention(@RequestParam("fansUserId") Integer fansUserId,
+                                    @RequestParam("attentionUserId") Integer attentionUserId){
+        return userService.cancelAttention(fansUserId, attentionUserId);
     }
 }

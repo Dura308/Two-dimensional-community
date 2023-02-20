@@ -70,6 +70,15 @@ public class TofuUser implements Serializable {
      */
     private String email;
 
+    /** 关注数量 */
+    private Integer attentionNum;
+
+    /** 粉丝数量 */
+    private Integer fansNum;
+
+    /** 所有获赞数量 */
+    private Integer allLikesNum;
+
     /**
      * 用户状态
      */
@@ -81,24 +90,9 @@ public class TofuUser implements Serializable {
     private Date lastLoginTime;
 
     /**
-     * 乐观锁
-     */
-    private Integer revision;
-
-    /**
-     * 创建人
-     */
-    private String createdBy;
-
-    /**
      * 创建时间
      */
     private Date createdTime;
-
-    /**
-     * 更新人
-     */
-    private String updatedBy;
 
     /**
      * 更新时间

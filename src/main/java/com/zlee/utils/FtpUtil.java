@@ -57,10 +57,6 @@ public class FtpUtil {
 
     public static String uploadVideo(String userId, MultipartFile file) throws IOException {
         FTPClient ftpClient = connectFtp("zlee_tofu_video", "lz020308");
-        //ftpClient.makeDirectory("images");//在root目录下创建文件夹
-        //String remoteFileName = System.currentTimeMillis() + "_" + imageName;
-        //ftpClient.storeFile("/www/wwwroot/vftp/" + imageName, is);//文件你若是不指定就会上传到root目录下
-        //文件你若是不指定就会上传到root目录下
         return uploadByInputStream(userId, file, ftpClient, VIDEO_FOLDER);
     }
 

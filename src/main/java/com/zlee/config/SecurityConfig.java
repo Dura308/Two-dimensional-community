@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/home/sendLoginVfc").anonymous()
                         .requestMatchers("/home/register").anonymous()
                         .requestMatchers("/content/getContent").permitAll()
+                        .requestMatchers("/content/getCardInfo").permitAll()
                         .requestMatchers("/home/getComments").permitAll()
                         .requestMatchers("/errorForward").anonymous()
                         .requestMatchers("/loginError").anonymous()

@@ -61,20 +61,38 @@ public class ContentController {
         return ResponseData.success(contentService.getContent(pageNum, userId));
     }
 
+    @GetMapping("/getCardInfo")
+    public Result<Object> getCardInfo(@RequestParam(value = "userId", defaultValue = "0") Integer userId,
+                                      @RequestParam("cardUserId") Integer cardUserId){
+        return contentService.getCardInfo(userId, cardUserId);
+    }
+
     @PutMapping("/like")
-    public Result<Object> like(@RequestParam("type") String type,
-                               @RequestParam("userId") Integer userId,
+    public Result<Object> like(@RequestParam("userId") Integer userId,
                                @RequestParam("contentId") Integer contentId){
 
-        return contentService.like(type, userId, contentId);
+        return contentService.like(userId, contentId);
+    }
+
+    @PutMapping("/disLike")
+    public Result<Object> disLike(@RequestParam("userId") Integer userId,
+                               @RequestParam("contentId") Integer contentId){
+
+        return contentService.disLike(userId, contentId);
     }
 
     @PutMapping("/collect")
-    public Result<Object> collect(@RequestParam("type") String type,
-                               @RequestParam("userId") Integer userId,
-                               @RequestParam("contentId") Integer contentId){
+    public Result<Object> collect(@RequestParam("userId") Integer userId,
+                                  @RequestParam("contentId") Integer contentId){
 
-        return contentService.collect(type, userId, contentId);
+        return contentService.collect(userId, contentId);
+    }
+
+    @PutMapping("/cancelCollect")
+    public Result<Object> cancelCollect(@RequestParam("userId") Integer userId,
+                                  @RequestParam("contentId") Integer contentId){
+
+        return contentService.cancelCollect(userId, contentId);
     }
 
 }
