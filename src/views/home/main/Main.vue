@@ -73,8 +73,6 @@
   const list = ref([])
   const pageNum = ref(1)
 
-  let cardInfo = reactive({})
-
   const getContent = () => {
     console.log(pageNum.value)
     newGetRequest('/content/getContent', {
@@ -91,10 +89,11 @@
       }
       pageNum.value++
       console.log(pageNum.value)
-      for (let item of response.data) {
-        cardInfo = item
-        list.value.push(cardInfo)
-      }
+      list.value = response.data
+      console.log(list.value)
+      // for (let item of response.data) {
+      //   list.value.push(item)
+      // }
     })
   }
 

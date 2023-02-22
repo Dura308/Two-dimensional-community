@@ -27,11 +27,13 @@ export function newPostRequest(suffixUrl : string, data : any, config = {}) {
  */
 export function newGetRequest(suffixUrl : string, params = {}) {
   return new Promise((resolve, reject) => {
+    console.log('get')
     axios.get(url + suffixUrl, {
       params: params
     }).then(response => {
       resolve(response.data);
     }).catch(err => {
+      console.log(err)
       reject(err)
     })
   })

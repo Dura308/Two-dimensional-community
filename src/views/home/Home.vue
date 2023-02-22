@@ -18,6 +18,7 @@
   import emitter from "@/utils/bus"
   import {useStore} from "vuex";
   import {ElNotification} from "element-plus";
+  import {newGetRequest} from "@/utils/api";
 
   //解决vuex数据在页面刷新被重置的问题
   const store = useStore()
@@ -32,10 +33,60 @@
     localStorage.setItem("store", JSON.stringify(store.state))
   })
 
+  // window.setInterval(() => {
+  //   setTimeout(() => {
+  //     console.log('轮询中.....')
+  //     newGetRequest('home/getCommentMsg', {
+  //       userId: store.state.loginInfo.userId
+  //     }).then(response => {
+  //       if(response.code === 200){
+  //         console.log(response.data)
+  //         // ElNotification({
+  //         //   title: '新的通知',
+  //         //   message: ',' + store.state.loginInfo.nickName,
+  //         //   duration: 3000,
+  //         // })
+  //       }
+  //     })
+  //   }, 0)
+  // }, 1000)
+
+  const commentForward = () => {
+    return new Promise(resolve => {
+
+      newGetRequest('/home/getCommentMsg', {
+        userId: store.state.loginInfo.userId
+      }).then(response => {
+        if(response.code === 200){
+          console.log(response.data)
+          resolve(response.data)
+        }
+      })
+    })
+  }
+
+  function start () {
+    setTimeout(() => {
+      console.log('轮询中.....')
+      commentForward().then(response => {
+        console.log(response)
+        ElNotification({
+          title: '新的通知',
+          message: response.userId + '用户给你的' + response.contentId + '评论了',
+          duration: 3000,
+        })
+      })
+      start()
+    }, 3000)
+  }
+  // const start =
+
+
   onMounted(() => {
     emitter.on('updateAvatar', (avatar) => {
       store.commit('updateAvatar', avatar)
     })
+    start()
   })
 
   onUnmounted(() => {

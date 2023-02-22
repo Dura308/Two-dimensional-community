@@ -3,7 +3,9 @@
            class="demo-tabs"
            tab-position="right"
            @tab-click="handleClick">
-    <el-tab-pane label="图片" name="first">User</el-tab-pane>
+    <el-tab-pane label="图片" name="first">
+      <picture-content />
+    </el-tab-pane>
     <el-tab-pane label="视频" name="second">Config</el-tab-pane>
     <el-tab-pane label="文字" name="third">Role</el-tab-pane>
     <el-tab-pane label="提问" name="fourth">Task</el-tab-pane>
@@ -12,6 +14,7 @@
 <script lang="ts" setup>
   import { ref } from 'vue'
   import type { TabsPaneContext } from 'element-plus'
+  import PictureContent from './PictureContent'
 
   const activeName = ref('first')
 

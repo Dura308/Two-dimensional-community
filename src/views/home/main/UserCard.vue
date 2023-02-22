@@ -29,17 +29,33 @@
 
 <script lang = "ts" setup>
 
-  import {defineProps, ref, watch} from "vue";
-  import {newPostRequest} from "../../../utils/api";
+  import {defineProps, onMounted, onUnmounted, ref} from "vue";
+  import {newGetRequest, newPostRequest} from "../../../utils/api";
   import {useStore} from "vuex";
   import {ElMessage} from "element-plus";
   import cardBg from '@/assets/img-card-bg.png'
+  import emitter from "@/utils/bus";
+  import axios from "axios";
+  import url from "../../../index";
 
   const store = useStore()
   const props = defineProps({
-    userInfo: {}
+    userId: '',
+    cardUserId: '',
+    uniqueId: ''
   })
 
+  onMounted(() => {
+    emitter.on('getCardInfo' + props.uniqueId, () => {
+      getUserCardInfo()
+    })
+  })
+
+  onUnmounted(() => {
+    emitter.off('getCardInfo')
+    emitter.off('attention')
+    emitter.off('cancelAttention')
+  })
 
   const userInfo = ref({
     userIntro: '',
@@ -53,18 +69,26 @@
     isAttention: ''
   })
 
-  watch(() => props.userInfo,
-    (newValue) => {
-    userInfo.value = newValue
-      console.log(typeof userInfo.value.isAttention)
-  })
+  const getUserCardInfo = () => {
+    return new Promise((resolve, reject) => {
+      console.log('获取卡片信息')
+      newGetRequest('/content/getCardInfo',{
+        userId: props.userId,
+        cardUserId: props.cardUserId
+      }).then(response => {
+        userInfo.value = response.data
+        console.log('getCardInfo1')
+        resolve(true)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
 
   //关注
   const attention = () => {
-    let fansUserId = String(store.state.loginInfo.userId)
-    let attentionUserId = String(userInfo.value.userId)
-    console.log(typeof fansUserId + fansUserId)
-    console.log(typeof attentionUserId + attentionUserId)
+    let fansUserId = String(props.userId)
+    let attentionUserId = String(props.cardUserId)
     if(fansUserId === attentionUserId){
       ElMessage({
         message: '小主不能关注自己哦`(*>﹏<*)′',
@@ -79,21 +103,28 @@
     newPostRequest('/user/attention',formData).then(response => {
       if (response.code === 200){
         userInfo.value.isAttention = true
+        ElMessage({
+          message: '关注成功(*^_^*)',
+          type: 'success',
+        })
       }
     })
   }
 
   //取消关注
   const cancelAttention = () => {
-    let fansUserId = store.state.loginInfo.userId
-    let attentionUserId = userInfo.value.userId
-    console.log(userInfo.value.isAttention)
+    let fansUserId = String(props.userId)
+    let attentionUserId = String(props.cardUserId)
     let formData = new FormData()
     formData.append('fansUserId', fansUserId)
     formData.append('attentionUserId', attentionUserId)
     newPostRequest('/user/cancelAttention',formData).then(response => {
       if (response.code === 200){
         userInfo.value.isAttention = false
+        ElMessage({
+          message: '取消关注成功Σ(っ °Д °;)っ',
+          type: 'success',
+        })
       }
     })
   }

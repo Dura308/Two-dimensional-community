@@ -127,7 +127,7 @@
 
   //地区文字转编码
   const areaTextToCode = (data) => {
-    if(data === undefined){
+    if(data === undefined || data === null){
       return
     }
     const area = String(data).split('/')

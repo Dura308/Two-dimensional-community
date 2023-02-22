@@ -6,8 +6,8 @@
                   :width="336"
                   :offset="10"
                   :popper-style="popperStyle"
+                  @before-enter="emitter.emit('getCardInfo' + contentInfo.contentId + 'squareCard')"
                   :show-arrow="false"
-                  @before-enter="getUserCardInfo"
                   trigger="hover">
         <template #reference>
           <el-link type="primary"
@@ -17,7 +17,9 @@
               :size="35"/>
           </el-link>
         </template>
-        <user-card :userInfo="userCardInfo"/>
+        <user-card :userId="loginInfo.userId"
+                   :cardUserId="contentInfo.userId"
+                   :uniqueId="contentInfo.contentId + 'squareCard'"/>
       </el-popover>
 
 
@@ -206,6 +208,8 @@
   import {useStore} from "vuex";
   import {newGetRequest, newPostRequest, newPutRequest} from "@/utils/api";
   import UserCard from './UserCard'
+  import emitter from "@/utils/bus";
+  import {collect, like} from '@/components/contentActions/Actions'
 
   interface List{
     isLike?: boolean,
@@ -235,20 +239,8 @@
     return 'http://47.109.51.114:8089/avatar/' + props.list.contentInfo.userId + '.png'
   })
 
-  const userCardInfo = ref()
-
-  const getUserCardInfo = () => {
-    console.log('获取卡片信息')
-    newGetRequest('/content/getCardInfo',{
-      userId: loginInfo.value.userId,
-      cardUserId: contentInfo.value.userId
-    }).then(response => {
-      userCardInfo.value = response.data
-    })
-  }
-
-
   const isLike = ref()
+  const isCollect = ref()
   const contentInfo = computed(() => {
     return props.list.contentInfo
   })
@@ -267,9 +259,9 @@
       return
     }
     if (mode === 'collect'){
-      collect()
+      collectAction()
     }else if (mode === 'like'){
-      like()
+      likeAction()
     }
   }
 
@@ -281,46 +273,23 @@
     })
   }
 
-  const isCollect = ref()
-  const collect = () => {
+  const collectAction = () => {
     isCollect.value = !isCollect.value
     let formData = new FormData()
     formData.append('userId', loginInfo.value.userId)
     formData.append('contentId', contentInfo.value.contentId)
-    if(isCollect.value){
-      newPutRequest('/content/collect', formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      })
-    }else {
-      newPutRequest('/content/cancelCollect', formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      })
-    }
+
+    collect(isCollect.value, formData)
   }
 
-  const like = () => {
+  const likeAction = () => {
     isLike.value = !isLike.value
     isLike.value ? contentInfo.value.likeNum++ : contentInfo.value.likeNum--
     let formData = new FormData()
     formData.append('userId', loginInfo.value.userId)
     formData.append('contentId', contentInfo.value.contentId)
-    if(isLike.value){
-      newPutRequest('/content/like', formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      })
-    }else {
-      newPutRequest('/content/disLike', formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      })
-    }
+
+    like(isLike.value, formData)
   }
 
   //---------------展开评论---------------
@@ -391,6 +360,7 @@
   onMounted(() => {
     isLike.value = props.list.isLike
     isCollect.value = props.list.isCollect
+    console.log(props.list)
   })
 
 </script>
@@ -563,11 +533,4 @@
     margin-bottom: 15px;
   }
 
-  :deep(.vue3-player-video .rounded-xl){
-    border-radius: 0;
-  }
-
-  :deep(.backdrop-filter){
-    backdrop-filter: blur(0px)!important;
-  }
 </style>

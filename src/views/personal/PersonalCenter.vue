@@ -37,11 +37,11 @@
           </el-tab-pane>
 
           <el-tab-pane label="我的关注" name="6">
-            我的关注
+            <personal-attention />
           </el-tab-pane>
 
           <el-tab-pane label="我的粉丝" name="7">
-            我的粉丝
+            <personal-fans />
           </el-tab-pane>
 
         </el-tabs>
@@ -53,7 +53,7 @@
 
 <script lang = "ts" setup>
 
-  import {onBeforeMount, onBeforeUpdate, onMounted, ref} from "vue";
+  import {onBeforeMount, onBeforeUpdate, onMounted, reactive, ref} from "vue";
   import {useStore} from "vuex";
   import {useRoute} from "vue-router";
   import type { TabsPaneContext } from 'element-plus'
@@ -62,6 +62,8 @@
   import PersonalContent from './personalContent/PersonalContent'
   import {newGetRequest} from "@/utils/api";
   import {ElMessage} from "element-plus";
+  import PersonalAttention from './personalAttention/PersonalAttention'
+  import PersonalFans from './personalFans/PersonalFans'
 
   const store = useStore()
   const route = useRoute()
