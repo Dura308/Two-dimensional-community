@@ -23,7 +23,7 @@ public class ExceptionHandler {
     @RequestMapping("/loginError")
     public Result<Object> loginError() {
 
-        throw new RuntimeException("登陆状态异常！");
+        throw new JWTVerificationException("登陆状态异常！");
 
     }
 }

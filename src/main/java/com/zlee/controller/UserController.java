@@ -34,8 +34,13 @@ public class UserController {
     @PutMapping("/updateAvatar")
     public Result<Object> updateAvatar(@RequestParam("userId") Integer userId,
                                        @RequestParam("avatarFile") MultipartFile file) {
-
         return userService.updateAvatar(userId,file);
+    }
+
+    @GetMapping("/getContent")
+    public Result<Object> getPictureContent(@RequestParam("userId") Integer userId,
+                                            @RequestParam("type") String type) {
+        return userService.getContentWithType(userId, type);
     }
 
     @PostMapping("/attention")
@@ -46,7 +51,19 @@ public class UserController {
 
     @PostMapping("/cancelAttention")
     public Result<Object> cancelAttention(@RequestParam("fansUserId") Integer fansUserId,
-                                    @RequestParam("attentionUserId") Integer attentionUserId){
+                                          @RequestParam("attentionUserId") Integer attentionUserId){
         return userService.cancelAttention(fansUserId, attentionUserId);
+    }
+
+    @GetMapping("/getAllAttention")
+    public Result<Object> getAllAttention(@RequestParam("userId") Integer userId,
+                                          @RequestParam("pageNum") Integer pageNum){
+        return userService.getAllAttention(pageNum, userId);
+    }
+
+    @GetMapping("/getAllFans")
+    public Result<Object> getAllFans(@RequestParam("userId") Integer userId,
+                                     @RequestParam("pageNum") Integer pageNum){
+        return userService.getAllFans(pageNum, userId);
     }
 }

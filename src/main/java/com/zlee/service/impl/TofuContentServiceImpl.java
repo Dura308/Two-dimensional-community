@@ -11,7 +11,6 @@ import com.zlee.mapper.*;
 import com.zlee.service.TofuContentService;
 import com.zlee.service.TofuUserService;
 import com.zlee.utils.FtpUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import static com.zlee.utils.ConstantUtil.*;
+
 /**
  * @author z-Lee
  * @date 2023-02-10-15:06
@@ -28,15 +29,7 @@ import java.util.Objects;
 @Service
 public class TofuContentServiceImpl extends ServiceImpl<TofuContentMapper, TofuContent> implements TofuContentService {
 
-    private static final String PICTURE = "picture";
-    private static final String TEXT = "text";
-    private static final String QUESTION = "question";
-    private static final String VIDEO = "video";
-    private static final String TOFU_CONTENT = "tofu:content";
-    private static final String LIKE = "like";
-    private static final String DISLIKE = "dislike";
-    private static final String COLLECT = "collect";
-    private static final String CANCEL_COLLECT = "cancelCollect";
+
     private static final Integer PAGE_SIZE = 15;
 
     private final TofuContentMapper contentMapper;
@@ -163,7 +156,7 @@ public class TofuContentServiceImpl extends ServiceImpl<TofuContentMapper, TofuC
     /** 添加帖子基本信息 */
     public String newContentInfo(HashMap<String, Object> contentMap) {
         TofuContent content = new TofuContent();
-        String userId = String.valueOf(contentMap.get("userId"));
+        Integer userId = (Integer) contentMap.get("userId");
         String nickName = String.valueOf(contentMap.get("nickName"));
         String text = String.valueOf(contentMap.get("text"));
         String contentType = String.valueOf(contentMap.get("contentType"));

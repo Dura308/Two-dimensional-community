@@ -26,6 +26,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     private final RedisUtil redisUtil;
 
+    public static ThreadLocal<String> threadLocal = new ThreadLocal<>();
+
     public JwtAuthenticationTokenFilter(RedisUtil redisUtil) {
         this.redisUtil = redisUtil;
     }
@@ -57,6 +59,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             request.getRequestDispatcher("/loginError").forward(request, response);
             filterChain.doFilter(request, response);
         }
+        threadLocal.set(userId);
+
 
         long time = decodedJwt.getExpiresAt().getTime() - System.currentTimeMillis();
         //小于10分钟则刷新token
