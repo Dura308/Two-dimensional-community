@@ -1,26 +1,100 @@
 <template>
   <div>
-    <el-dropdown>
-      <el-link class = "header-nav-bar" href = "#" :underline = "false">
-        <el-avatar :src="avatarUrl" :size="50"/>
-      </el-link>
+    <div v-if="tokenIsExist">
+      <el-popover placement="bottom"
+                  class="user-popover"
+                  :show-arrow="false"
+                  :show-after="200"
+                  :hide-after="100"
+                  transition="el-zoom-in-top"
+                  :popper-style="popperStyle"
+                  :offset="0"
+                  :width="250"
+                  trigger="hover">
+        <template #reference>
+          <el-link class = "header-nav-bar" :underline = "false">
+            <el-avatar :class="avatarClass"
+                       :src="avatarUrl"
+                       @mouseover="avatarMouseOver"
+                       @mouseout="avatarMouseOut"
+                       :size="50"/>
+          </el-link>
+        </template>
+        <div class="user-popover-content"
+             @mouseover="avatarMouseOver"
+             @mouseout="avatarMouseOut"
+             style="padding: 20px 10px 0 10px;">
+          <div class="user-popover-main">
+            <div class="user-popover-nickName">
+              <span>{{ userInfo.nickName }}</span>
+            </div>
+            <div class="user-popover-social-info">
+              <div class="user-popover-info">
+                <span class="user-popover-info-num">{{ userInfo.attentionNum }}</span>
+                <span class="user-popover-info-text">关注</span>
+              </div>
+              <div class="user-popover-info">
+                <span class="user-popover-info-num">{{ userInfo.fansNum }}</span>
+                <span class="user-popover-info-text">粉丝</span>
+              </div>
+              <div class="user-popover-info">
+                <span class="user-popover-info-num">{{ userInfo.allLikesNum }}</span>
+                <span class="user-popover-info-text">获赞</span>
+              </div>
+            </div>
 
-      <template v-if="tokenIsExist" #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item @click="toPersonalCenter">个人中心</el-dropdown-item>
-          <el-dropdown-item >设置</el-dropdown-item>
-          <el-dropdown-item @click="logOut">退出</el-dropdown-item>
-        </el-dropdown-menu>
-      </template>
+            <div class="user-popover-btn user-center" @click="toPersonalCenter">
+              <div class="user-popover-btn-icon">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-wode"></use>
+                </svg>
+              </div>
+              <span class="user-popover-btn-text">个人中心</span>
+            </div>
 
-      <template v-else #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item @click="changeLoginDialogVisible">登录</el-dropdown-item>
-          <el-dropdown-item @click="registDialogVisible = true">注册</el-dropdown-item>
-        </el-dropdown-menu>
-      </template>
+            <div class="user-popover-btn user-center">
+              <div class="user-popover-btn-icon">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-fabu"></use>
+                </svg>
+              </div>
+              <span class="user-popover-btn-text">发布管理</span>
+            </div>
 
-    </el-dropdown>
+            <div class="user-popover-btn user-center">
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-tuijian"></use>
+              </svg>
+              <span class="user-popover-btn-text">推荐服务</span>
+            </div>
+            <el-divider />
+            <div class="user-popover-btn user-center" @click="logOut">
+              <div class="user-popover-btn-icon">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-tuichu"></use>
+                </svg>
+              </div>
+              <span class="user-popover-btn-text">退出登录</span>
+            </div>
+          </div>
+        </div>
+      </el-popover>
+    </div>
+
+    <div v-else>
+      <el-dropdown>
+        <el-link class = "header-nav-bar" href = "#" :underline = "false">
+          <el-avatar :src="avatarUrl" :size="50"/>
+        </el-link>
+
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item @click="changeLoginDialogVisible">登录</el-dropdown-item>
+            <el-dropdown-item @click="registDialogVisible = true">注册</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </div>
 
     <!-- 登录对话框 -->
     <el-dialog
@@ -185,11 +259,12 @@
 <script lang = "ts" setup>
 
   import {useStore} from "vuex";
-  import {computed, reactive, ref} from "vue";
+  import {computed, onMounted, reactive, ref} from "vue";
   import {newGetRequest, newPostRequest} from "@/utils/api";
   import {ElMessage, ElNotification, FormInstance} from "element-plus";
   import {useRouter} from "vue-router";
   import HomeLogo from '@/assets/tofu社区.png'
+  import "@/icon.js"
 
   const store = useStore()
   const router = useRouter()
@@ -222,6 +297,7 @@
   const avatarUrl = computed(() => {
     return store.state.loginInfo.avatar
   })
+  const userInfo = ref({})
 
   const changeLoginDialogVisible = () => {
     store.commit('changeLoginDialogVisible')
@@ -278,6 +354,7 @@
         store.commit('removeToken')
         localStorage.removeItem('store')
         localStorage.removeItem('token')
+        localStorage.removeItem('userInfo')
         ElMessage({
           message: response.data,
           type: 'success'
@@ -384,25 +461,34 @@
 
   /** 登录后的处理 */
   const finishLogin = (token) => {
-    console.log(token)
     store.commit('parseToken', token)
     localStorage.setItem('token', token)
     changeLoginDialogVisible()
     loginLoading.value = false
-    location.reload()
+    console.log('loginLoading>>>' + loginLoading.value)
     ElNotification({
       title: '登录成功',
       message: '欢迎回来,' + store.state.loginInfo.nickName,
       duration: 3000,
     })
 
-    newGetRequest('/user/getUserInfo', {
-      token: token
-    }).then((response) => {
-      console.log(response)
-      if(response.code === 200){
-        localStorage.setItem('userInfo', response.data)
+    getUserInfo(token).then(response => {
+      if(response === true){
+        location.reload()
       }
+    })
+  }
+
+  const getUserInfo = (token) => {
+    return new Promise(resolve => {
+      newGetRequest('/user/getUserInfo', {
+        token: token
+      }).then((response) => {
+        if(response.code === 200){
+          localStorage.setItem('userInfo', JSON.stringify(response.data))
+          resolve(true)
+        }
+      })
     })
   }
 
@@ -417,9 +503,120 @@
     window.open(newPage.href,'_blank')
   }
 
+  const avatarClass = ref()
+  const avatarMouseOver = () => {
+    avatarClass.value = 'big-avatar'
+  }
+  const avatarMouseOut = () => {
+    avatarClass.value = 'user-avatar'
+  }
+
+  const popperStyle = {
+    borderRadius: '8px',
+  }
+
+  onMounted(() => {
+    if(localStorage.getItem('userInfo')){
+      userInfo.value = JSON.parse(localStorage.getItem('userInfo'))
+    }
+  })
 </script>
 
 <style scoped>
+
+  :deep(.el-divider--horizontal){
+    margin: 0 0 8px 0;
+  }
+
+  .user-popover-main{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .user-popover-nickName{
+    display: flex;
+    justify-content: center;
+  }
+
+  .user-popover-nickName > span{
+    font-weight: bolder;
+    font-size: 20px
+  }
+
+  .user-popover-social-info{
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .big-avatar{
+    transition: all 0.3s;
+    transform: scale(1.4) translate(0, 10px);
+    z-index: 20000;
+  }
+
+  .user-avatar{
+    transition: all 0.3s;
+    z-index: 20000;
+  }
+
+  .user-avatar:hover{
+    transform: scale(1.4) translate(0, 10px);
+  }
+
+  .user-popover-main > .user-popover-nickName,
+  .user-popover-social-info, .user-popover-btn{
+    margin-bottom: 8px;
+  }
+
+  .user-popover-btn{
+    cursor: pointer;
+    border-radius: 10px;
+    color: #61666d;
+    height: 35px;
+    display: flex;
+    align-items: center;
+  }
+
+  .user-popover-btn:hover{
+    background-color: #E3E5E7;
+  }
+
+  .user-popover-info{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .user-popover-info:hover{
+    color: #43A0FF;
+  }
+
+  .user-popover-info > .user-popover-info-num{
+    font-size: 18px;
+  }
+
+  .user-popover-info > .user-popover-info-text{
+    font-size: 10px;
+  }
+
+  .icon{
+    width: 3em;
+    height: 1.1em;
+    vertical-align: -0.15em;
+    fill: currentColor;
+    overflow: hidden;
+    font-weight: bold;
+  }
+
+  .user-popover-btn > .user-popover-btn-text{
+    font-size: 14px;
+  }
+
+  .user-popover-btn > .user-popover-btn-icon{
+    display: flex;
+    align-items: center;
+  }
 
   .input-extra{
     position: absolute;

@@ -1,5 +1,5 @@
 <template>
-  <a href="#" class="like-btn" ref="likeButton" @click="dianzan(props.isLike)">
+  <a class="like-btn" ref="likeButton" @click="dianzan(props.isLike)">
     <!-- like button icon svg -->
     <svg class="like-icon" ref="likeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
       <path d="M12 4.419c-2.826-5.695-11.999-4.064-11.999 3.27 0 7.27 9.903 10.938 11.999
@@ -25,7 +25,7 @@
   })
 
   const dianzan = (isLike) => {
-    if (store.state.token === null) {
+    if (localStorage.getItem('token') === null) {
       return
     }
     if(!isLike){
@@ -78,6 +78,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
   }
 
   .like-btn:active {

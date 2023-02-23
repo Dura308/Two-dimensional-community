@@ -36,6 +36,8 @@ export default createStore({
       }
     },
     setUserInfo(state, userInfo){
+      console.log('setUserInfo')
+      console.log(userInfo)
       state.userInfo = userInfo
     },
     updateAvatar(state, avatar){

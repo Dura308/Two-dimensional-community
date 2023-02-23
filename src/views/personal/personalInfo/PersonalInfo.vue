@@ -86,7 +86,7 @@
 
   const getUserInfo = () => {
     newGetRequest('/user/getUserInfo', {
-      userId: route.query.userId
+      token: localStorage.getItem('token')
     }).then(response => {
       console.log(response)
       if(response.code === 200){

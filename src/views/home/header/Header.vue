@@ -33,7 +33,11 @@
               <user-avatar />
             </li>
             <li><el-link class = "header-nav-bar" href = "#" :icon = House>首页</el-link></li>
-            <li><el-link class = "header-nav-bar" href = "#" :icon = Bell>消息</el-link></li>
+            <li>
+              <el-badge :value="12" class="item">
+                <el-link class = "header-nav-bar" href = "#" :icon = Bell>消息</el-link>
+              </el-badge>
+            </li>
             <li><el-link class = "header-nav-bar" href = "#" :icon = Coin>积分商城</el-link></li>
             <li>
               <release-menu />
@@ -131,4 +135,5 @@
     margin-left: 10px;
     margin-right: 10px;
   }
+
 </style>

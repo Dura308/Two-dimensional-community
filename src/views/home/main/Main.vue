@@ -88,12 +88,9 @@
         return;
       }
       pageNum.value++
-      console.log(pageNum.value)
-      list.value = response.data
-      console.log(list.value)
-      // for (let item of response.data) {
-      //   list.value.push(item)
-      // }
+      for (let item of response.data) {
+        list.value.push(item)
+      }
     })
   }
 
