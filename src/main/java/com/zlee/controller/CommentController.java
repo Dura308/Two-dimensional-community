@@ -33,11 +33,6 @@ public class CommentController {
         return commentService.insertComment(comment);
     }
 
-    @GetMapping("/getCommentMsg")
-    public Result<Object> commentForward(@RequestParam Integer userId){
-        return commentService.commentForward(userId);
-    }
-
     @GetMapping("/test")
     public Result<Object> test() {
         System.out.println(1);

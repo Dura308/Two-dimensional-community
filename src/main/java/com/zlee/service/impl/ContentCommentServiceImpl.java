@@ -12,14 +12,10 @@ import com.zlee.mapper.TofuContentMapper;
 import com.zlee.service.ContentCommentService;
 import com.zlee.service.TofuContentService;
 import com.zlee.utils.CommentUtil;
-import com.zlee.utils.RedisUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author z-Lee
@@ -31,13 +27,15 @@ public class ContentCommentServiceImpl extends ServiceImpl<ContentCommentMapper,
     private final ContentCommentMapper commentMapper;
     private final TofuContentService contentService;
     private final TofuContentMapper contentMapper;
-    private final RedisUtil redisUtil;
+    private final ForwardServiceImpl forwardService;
 
-    public ContentCommentServiceImpl(ContentCommentMapper commentMapper, TofuContentService contentService, RedisUtil redisUtil, TofuContentMapper contentMapper) {
+    public ContentCommentServiceImpl(ContentCommentMapper commentMapper,
+                                     TofuContentService contentService,
+                                     TofuContentMapper contentMapper, ForwardServiceImpl forwardService) {
         this.commentMapper = commentMapper;
         this.contentService = contentService;
-        this.redisUtil = redisUtil;
         this.contentMapper = contentMapper;
+        this.forwardService = forwardService;
     }
 
     public List<ContentComment> getComment(Integer contentId) {
@@ -46,48 +44,37 @@ public class ContentCommentServiceImpl extends ServiceImpl<ContentCommentMapper,
         return CommentUtil.processContentComments(list, false);
     }
 
-
     /**
      * 用户评论操作
      * */
-    public Result<Object> insertComment(ContentComment comment) {
+    public Result<Object> insertComment(ContentComment commentInfo) {
 
         //添加评论到数据库
         LambdaUpdateWrapper<TofuContent> wrapper = new LambdaUpdateWrapper<>();
         wrapper.setSql("COMMENT_NUM = COMMENT_NUM + 1");
-        wrapper.eq(TofuContent::getContentId, comment.getContentId());
-        commentMapper.insert(comment);
+        wrapper.eq(TofuContent::getContentId, commentInfo.getContentId());
+        commentMapper.insert(commentInfo);
         contentService.update(wrapper);
 
-
         //转发评论消息
-        //评论人的userId
-        Integer userId = comment.getUserId();
+        //评论人的基本信息
+        Integer userId = commentInfo.getUserId();
+        String nickName = commentInfo.getNickName();
+        //评论内容
+        String comment = commentInfo.getComment();
         //帖子id
-        Integer contentId = comment.getContentId();
+        Integer contentId = commentInfo.getContentId();
         //
         TofuContent content = contentMapper.selectOne(new LambdaQueryWrapper<TofuContent>().eq(TofuContent::getContentId, contentId));
         Integer contentUserId = content.getUserId();
-        HashMap<String, Object> map = new HashMap<>();
+        HashMap<String, Object> map = new HashMap<>(16);
         map.put("userId", userId);
+        map.put("nickName", nickName);
+        map.put("comment", comment);
         map.put("contentId", contentId);
-        //map.put("contentUserId", contentUserId);
 
-        redisUtil.set("commentForward:" + contentUserId , map);
+        //转发评论消息
+        forwardService.sendMessage(contentUserId, map);
         return ResponseData.success("评论成功");
     }
-
-
-    public Result<Object> commentForward(Integer userId) {
-
-        Object o;
-        if(redisUtil.hasKey("commentForward:" + userId)){
-            o = redisUtil.get("commentForward:" + userId);
-            redisUtil.del("commentForward:" + userId);
-            return ResponseData.success(o);
-        }
-
-        return ResponseData.fail();
-    }
-
 }

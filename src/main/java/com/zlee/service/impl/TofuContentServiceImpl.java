@@ -198,6 +198,19 @@ public class TofuContentServiceImpl extends ServiceImpl<TofuContentMapper, TofuC
         return ResponseData.success("发布成功！");
     }
 
+    public Result<Object> likeOperation(Integer userId, Integer contentId) {
+        //判断用户是否点过赞
+        TofuUserLike selectOne = userLikeMapper.selectOne(new LambdaQueryWrapper<TofuUserLike>()
+                .eq(TofuUserLike::getUserId, userId)
+                .eq(TofuUserLike::getContentId, contentId));
+
+        if(Objects.isNull(selectOne)){
+            return like(userId, contentId);
+        }
+
+        return disLike(userId, contentId);
+    }
+
     /**
      * 帖子点赞
      * @param userId 用户ID
@@ -257,7 +270,18 @@ public class TofuContentServiceImpl extends ServiceImpl<TofuContentMapper, TofuC
         return ResponseData.success("操作成功");
     }
 
+    public Result<Object> collectOperation(Integer userId, Integer contentId) {
 
+        TofuUserCollect selectOne = userCollectMapper.selectOne(new LambdaQueryWrapper<TofuUserCollect>()
+                .eq(TofuUserCollect::getUserId, userId)
+                .eq(TofuUserCollect::getContentId, contentId));
+
+        if(Objects.isNull(selectOne)){
+            return collect(userId, contentId);
+        }
+
+        return cancelCollect(userId, contentId);
+    }
 
     /**
      * 帖子收藏
@@ -300,6 +324,7 @@ public class TofuContentServiceImpl extends ServiceImpl<TofuContentMapper, TofuC
         return ResponseData.success("操作成功");
     }
 
+    /** 获取其他用户卡片信息 */
     public Result<Object> getCardInfo(Integer userId, Integer cardUserId) {
         TofuUser user = userMapper.selectOne(new LambdaQueryWrapper<TofuUser>().eq(TofuUser::getUserId, cardUserId));
         HashMap<String, Object> map = new HashMap<>(16);

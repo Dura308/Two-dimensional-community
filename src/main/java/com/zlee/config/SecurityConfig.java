@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/home/register").anonymous()
                         .requestMatchers("/content/getContent").permitAll()
                         .requestMatchers("/content/getCardInfo").permitAll()
+                        .requestMatchers("/sse/**").permitAll()
                         .requestMatchers("/home/getComments").permitAll()
                         .requestMatchers("/errorForward").anonymous()
                         .requestMatchers("/loginError").anonymous()

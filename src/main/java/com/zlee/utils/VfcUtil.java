@@ -8,7 +8,6 @@ import java.util.Random;
  */
 public class VfcUtil {
 
-
     /**
      * @param num 几位数的验证码
      * */

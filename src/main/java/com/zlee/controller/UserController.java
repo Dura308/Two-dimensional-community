@@ -22,8 +22,8 @@ public class UserController {
     }
 
     @GetMapping("/getUserInfo")
-    public Result<Object> getUserInfo(@RequestParam("userId")Integer userId) {
-        return ResponseData.success(userService.getUserInfo(userId));
+    public Result<Object> getUserInfo(@RequestParam("token") String token) {
+        return ResponseData.success(userService.getUserInfo(token));
     }
 
     @PutMapping("/updateInfo")

@@ -11,6 +11,7 @@ import com.zlee.entity.*;
 import com.zlee.mapper.*;
 import com.zlee.service.TofuUserService;
 import com.zlee.utils.FtpUtil;
+import com.zlee.utils.JwtUtil;
 import com.zlee.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,8 @@ public class TofuUserServiceImpl extends ServiceImpl<TofuUserMapper, TofuUser> i
         this.videoMapper = videoMapper;
     }
     /** 获取用户自己的信息 */
-    public TofuUser getUserInfo(Integer userId) {
+    public TofuUser getUserInfo(String token) {
+        String userId = JwtUtil.parseToken(token).getClaim("userId").asString();
         return userMapper.selectOne(
                 new LambdaQueryWrapper<TofuUser>()
                         .eq(TofuUser::getUserId, userId));
@@ -231,6 +233,7 @@ public class TofuUserServiceImpl extends ServiceImpl<TofuUserMapper, TofuUser> i
         LambdaQueryWrapper<TofuContent> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(TofuContent::getUserId, userId);
         wrapper.eq(TofuContent::getContentType, type);
+        wrapper.orderByDesc(TofuContent::getCreatedTime);
         List<TofuContent> contentList = contentMapper.selectList(wrapper);
 
         //获取当前用户点赞、收藏列表
