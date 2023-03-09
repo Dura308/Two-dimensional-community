@@ -25,7 +25,7 @@ public class ContentPicture implements Serializable {
     /**
      * 图片地址
      */
-    private String picture;
+    private String url;
 
     @Serial
     private static final long serialVersionUID = 1L;

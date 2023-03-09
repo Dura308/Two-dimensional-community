@@ -7,16 +7,39 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="login-service" />
+        <module name="comment-service" />
+        <module name="content-service" />
+        <module name="remind-service" />
         <module name="service" />
+        <module name="gateway-service" />
+        <module name="user-service" />
+        <module name="feign-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="cloud-service" target="17" />
+      <module name="comment-service" target="18" />
+      <module name="content-service" target="18" />
+      <module name="feign-service" target="18" />
+      <module name="gateway-service" target="18" />
+      <module name="login-service" target="17" />
+      <module name="remind-service" target="18" />
       <module name="service" target="17" />
+      <module name="user-service" target="18" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="cloud-service" options="" />
+      <module name="comment-service" options="-parameters" />
+      <module name="content-service" options="-parameters" />
+      <module name="feign-service" options="-parameters" />
+      <module name="gateway-service" options="-parameters" />
+      <module name="login-service" options="-parameters" />
+      <module name="remind-service" options="-parameters" />
       <module name="service" options="-parameters" />
+      <module name="user-service" options="-parameters" />
     </option>
   </component>
 </project>

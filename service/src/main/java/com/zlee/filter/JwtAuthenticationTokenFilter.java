@@ -1,5 +1,6 @@
 package com.zlee.filter;
 
+import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.zlee.utils.JwtUtil;
 import com.zlee.utils.RedisUtil;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -23,6 +25,8 @@ import java.util.Objects;
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     private final RedisUtil redisUtil;
+
+    public static ThreadLocal<String> threadLocal = new ThreadLocal<>();
 
     public JwtAuthenticationTokenFilter(RedisUtil redisUtil) {
         this.redisUtil = redisUtil;
@@ -48,14 +52,27 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             request.getRequestDispatcher("/errorForward").forward(request, response);
             filterChain.doFilter(request, response);
         }
+
         assert decodedJwt != null;
-        String uuid = String.valueOf(decodedJwt.getClaim("uuid").asString());
-        if(Objects.isNull(uuid)){
-            throw new RuntimeException("用户未登录");
+        String userId = String.valueOf(decodedJwt.getClaim("userId").asString());
+        if(Objects.isNull(userId) || !redisUtil.hasKey("login:" + userId)){
+            request.getRequestDispatcher("/loginError").forward(request, response);
+            filterChain.doFilter(request, response);
+        }
+        threadLocal.set(userId);
+
+
+        long time = decodedJwt.getExpiresAt().getTime() - System.currentTimeMillis();
+        //小于10分钟则刷新token
+        if(time < 10 * 60 * 1000){
+            String renewToken = JwtUtil.renewToken(token);
+            redisUtil.expire("login:" + userId, 60L * 600);
+            response.addHeader("renew-token", renewToken);
+            response.setHeader("Access-Control-Expose-Headers","renew-token");
         }
 
         //用户存在且已登录
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(uuid, null, null);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(token, null, null);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         filterChain.doFilter(request, response);
     }

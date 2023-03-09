@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author z-Lee
  * @date 2023-1-4-18:38
  */
-@SpringBootApplication()
+@SpringBootApplication
 public class ServiceApplication {
 
     public static void main(String[] args) {

@@ -1,7 +1,13 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
+    <inspection_tool class="BooleanMethodIsAlwaysInverted" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="CheckEmptyScriptTag" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <Languages>
+        <language minSize="122" name="Java" />
+      </Languages>
+    </inspection_tool>
     <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
@@ -16,7 +22,7 @@
     <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="9">
+          <list size="12">
             <item index="0" class="java.lang.String" itemvalue="nobr" />
             <item index="1" class="java.lang.String" itemvalue="noembed" />
             <item index="2" class="java.lang.String" itemvalue="comment" />
@@ -26,10 +32,23 @@
             <item index="6" class="java.lang.String" itemvalue="squarecard" />
             <item index="7" class="java.lang.String" itemvalue="vue-star" />
             <item index="8" class="java.lang.String" itemvalue="upload-picture" />
+            <item index="9" class="java.lang.String" itemvalue="personal-info" />
+            <item index="10" class="java.lang.String" itemvalue="personal-avatar" />
+            <item index="11" class="java.lang.String" itemvalue="el-collapse-transition" />
           </list>
         </value>
       </option>
       <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
+    <inspection_tool class="IncorrectHttpHeaderInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="customHeaders">
+        <set>
+          <option value="renewToken" />
+          <option value="Access-Control-Expose-Headers" />
+          <option value="renew-token" />
+          <option value="token" />
+        </set>
+      </option>
     </inspection_tool>
     <inspection_tool class="JavaDoc" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="TOP_LEVEL_CLASS_OPTIONS">
@@ -62,5 +81,9 @@
       <option name="IGNORE_POINT_TO_ITSELF" value="false" />
       <option name="myAdditionalJavadocTags" value="date" />
     </inspection_tool>
+    <inspection_tool class="MavenModelInspection" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="MybatisMapperXmlInspection" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="TypeScriptCheckImport" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="TypeScriptValidateTypes" enabled="false" level="ERROR" enabled_by_default="false" />
   </profile>
 </component>

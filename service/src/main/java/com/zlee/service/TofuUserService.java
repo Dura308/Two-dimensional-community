@@ -5,8 +5,7 @@ import com.zlee.entity.TofuUser;
 
 /**
  * @author z-Lee
- * @date 2023-01-05-15:12
+ * @date 2023-02-17-21:59
  */
 public interface TofuUserService extends IService<TofuUser> {
-
 }

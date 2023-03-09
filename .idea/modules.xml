@@ -2,7 +2,15 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/service/cloud-service/cloud-service.iml" filepath="$PROJECT_DIR$/service/cloud-service/cloud-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service/cloud-service/comment-service/comment-service.iml" filepath="$PROJECT_DIR$/service/cloud-service/comment-service/comment-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service/cloud-service/content-service/content-service.iml" filepath="$PROJECT_DIR$/service/cloud-service/content-service/content-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service/cloud-service/feign-service/feign-service.iml" filepath="$PROJECT_DIR$/service/cloud-service/feign-service/feign-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service/cloud-service/gateway-service/gateway-service.iml" filepath="$PROJECT_DIR$/service/cloud-service/gateway-service/gateway-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service/cloud-service/login-service/login-service.iml" filepath="$PROJECT_DIR$/service/cloud-service/login-service/login-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service/cloud-service/remind-service/remind-service.iml" filepath="$PROJECT_DIR$/service/cloud-service/remind-service/remind-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/service/service.iml" filepath="$PROJECT_DIR$/service/service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service/cloud-service/user-service/user-service.iml" filepath="$PROJECT_DIR$/service/cloud-service/user-service/user-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/web/web.iml" filepath="$PROJECT_DIR$/web/web.iml" />
     </modules>
   </component>

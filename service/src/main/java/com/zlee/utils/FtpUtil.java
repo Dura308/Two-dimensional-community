@@ -15,8 +15,10 @@ import java.io.InputStream;
 public class FtpUtil {
 
     private static final String PICTURE_FOLDER = "http://47.109.51.114:8089/picture/";
+    private static final String VIDEO_FOLDER = "http://47.109.51.114:8089/video/";
+    private static final String AVATAR_FOLDER = "http://47.109.51.114:8089/avatar/";
 
-    public static String uploadImageByInputStream(String userId, MultipartFile file) throws IOException {
+    private static FTPClient connectFtp(String username, String password) throws IOException{
         //创建ftp客户端
         FTPClient ftpClient = new FTPClient();
         ftpClient.setControlEncoding("UTF-8");
@@ -24,10 +26,6 @@ public class FtpUtil {
         String hostname = "47.109.51.114";
         //ftp端口
         int port = 21;
-        //ftp用户名
-        String username = "zlee_tofu_picture";
-        //密码
-        String password = "j8dySB6NY7TYK25S";
 
         //连接ftp服务器
         ftpClient.connect(hostname, port);
@@ -45,18 +43,48 @@ public class FtpUtil {
         //设置被动模式
         ftpClient.enterLocalPassiveMode();
 
+        return ftpClient;
+    }
+
+    public static String uploadImage(String userId, MultipartFile file) throws IOException {
+        FTPClient ftpClient = connectFtp("zlee_tofu_picture", "j8dySB6NY7TYK25S");
         //ftpClient.makeDirectory("images");//在root目录下创建文件夹
         //String remoteFileName = System.currentTimeMillis() + "_" + imageName;
         //ftpClient.storeFile("/www/wwwroot/vftp/" + imageName, is);//文件你若是不指定就会上传到root目录下
         //文件你若是不指定就会上传到root目录下
+        return uploadByInputStream(userId, file, ftpClient, PICTURE_FOLDER);
+    }
 
+    public static String uploadVideo(String userId, MultipartFile file) throws IOException {
+        FTPClient ftpClient = connectFtp("zlee_tofu_video", "lz020308");
+        return uploadByInputStream(userId, file, ftpClient, VIDEO_FOLDER);
+    }
+
+    private static String uploadByInputStream(String userId, MultipartFile file, FTPClient ftpClient, String folder) throws IOException {
         ftpClient.makeDirectory(userId);
         InputStream fileInputStream = file.getInputStream();
         ftpClient.storeFile("/" + userId + "/" + file.getOriginalFilename(), fileInputStream);
         fileInputStream.close();
         ftpClient.logout();
         ftpClient.disconnect();
-        return PICTURE_FOLDER + userId + "/" + file.getOriginalFilename();
+        return folder + userId + "/" + file.getOriginalFilename();
+    }
+
+    public static String uploadAvatarByInputStream(MultipartFile file) throws IOException {
+
+        FTPClient ftpClient = connectFtp("zlee_tofu", "lz020308");
+        //ftpClient.makeDirectory("images");//在root目录下创建文件夹
+        //String remoteFileName = System.currentTimeMillis() + "_" + imageName;
+        //ftpClient.storeFile("/www/wwwroot/vftp/" + imageName, is);//文件你若是不指定就会上传到root目录下
+        //文件你若是不指定就会上传到root目录下
+
+        InputStream fileInputStream = file.getInputStream();
+        boolean b = ftpClient.storeFile(file.getOriginalFilename(), fileInputStream);
+        System.out.println(b);
+        fileInputStream.close();
+        ftpClient.logout();
+        ftpClient.disconnect();
+        return AVATAR_FOLDER + file.getOriginalFilename();
     }
 }
 

@@ -14,9 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ExceptionHandler {
 
     @RequestMapping("/errorForward")
-    public Result<Object> throwException(HttpServletRequest request) {
+    public Result<Object> errorForward(HttpServletRequest request) {
         Exception tokenException = (Exception) request.getAttribute("TokenException");
         throw new JWTVerificationException(tokenException.getMessage());
+
+    }
+
+    @RequestMapping("/loginError")
+    public Result<Object> loginError() {
+
+        throw new JWTVerificationException("登陆状态异常！");
 
     }
 }
